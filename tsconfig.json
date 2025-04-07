@@ -14,5 +14,5 @@
     },
     "types": ["vite/client"]
   },
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": ["**/*.ts", "**/*.tsx", "vite.config.js"]
 }

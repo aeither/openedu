@@ -11,8 +11,10 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as TermsOfServiceImport } from './routes/terms-of-service'
 import { Route as SettingsImport } from './routes/settings'
 import { Route as RedirectImport } from './routes/redirect'
+import { Route as PrivacyPolicyImport } from './routes/privacy-policy'
 import { Route as PostsImport } from './routes/posts'
 import { Route as PortfolioImport } from './routes/portfolio'
 import { Route as PlaygroundImport } from './routes/playground'
@@ -31,6 +33,12 @@ import { Route as PostsPostIdDeepImport } from './routes/posts_.$postId.deep'
 
 // Create/Update Routes
 
+const TermsOfServiceRoute = TermsOfServiceImport.update({
+  id: '/terms-of-service',
+  path: '/terms-of-service',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const SettingsRoute = SettingsImport.update({
   id: '/settings',
   path: '/settings',
@@ -40,6 +48,12 @@ const SettingsRoute = SettingsImport.update({
 const RedirectRoute = RedirectImport.update({
   id: '/redirect',
   path: '/redirect',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PrivacyPolicyRoute = PrivacyPolicyImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -200,6 +214,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsImport
       parentRoute: typeof rootRoute
     }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyImport
+      parentRoute: typeof rootRoute
+    }
     '/redirect': {
       id: '/redirect'
       path: '/redirect'
@@ -212,6 +233,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsImport
+      parentRoute: typeof rootRoute
+    }
+    '/terms-of-service': {
+      id: '/terms-of-service'
+      path: '/terms-of-service'
+      fullPath: '/terms-of-service'
+      preLoaderRoute: typeof TermsOfServiceImport
       parentRoute: typeof rootRoute
     }
     '/course/$id': {
@@ -283,8 +311,10 @@ export interface FileRoutesByFullPath {
   '/playground': typeof PlaygroundRoute
   '/portfolio': typeof PortfolioRoute
   '/posts': typeof PostsRouteWithChildren
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/redirect': typeof RedirectRoute
   '/settings': typeof SettingsRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
   '/course/$id': typeof CourseIdRoute
   '/merchant/$id': typeof MerchantIdRoute
   '/notes/$noteId': typeof NotesNoteIdRoute
@@ -302,8 +332,10 @@ export interface FileRoutesByTo {
   '/learn': typeof LearnRoute
   '/playground': typeof PlaygroundRoute
   '/portfolio': typeof PortfolioRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/redirect': typeof RedirectRoute
   '/settings': typeof SettingsRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
   '/course/$id': typeof CourseIdRoute
   '/merchant/$id': typeof MerchantIdRoute
   '/notes/$noteId': typeof NotesNoteIdRoute
@@ -323,8 +355,10 @@ export interface FileRoutesById {
   '/playground': typeof PlaygroundRoute
   '/portfolio': typeof PortfolioRoute
   '/posts': typeof PostsRouteWithChildren
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/redirect': typeof RedirectRoute
   '/settings': typeof SettingsRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
   '/course/$id': typeof CourseIdRoute
   '/merchant/$id': typeof MerchantIdRoute
   '/notes/$noteId': typeof NotesNoteIdRoute
@@ -345,8 +379,10 @@ export interface FileRouteTypes {
     | '/playground'
     | '/portfolio'
     | '/posts'
+    | '/privacy-policy'
     | '/redirect'
     | '/settings'
+    | '/terms-of-service'
     | '/course/$id'
     | '/merchant/$id'
     | '/notes/$noteId'
@@ -363,8 +399,10 @@ export interface FileRouteTypes {
     | '/learn'
     | '/playground'
     | '/portfolio'
+    | '/privacy-policy'
     | '/redirect'
     | '/settings'
+    | '/terms-of-service'
     | '/course/$id'
     | '/merchant/$id'
     | '/notes/$noteId'
@@ -382,8 +420,10 @@ export interface FileRouteTypes {
     | '/playground'
     | '/portfolio'
     | '/posts'
+    | '/privacy-policy'
     | '/redirect'
     | '/settings'
+    | '/terms-of-service'
     | '/course/$id'
     | '/merchant/$id'
     | '/notes/$noteId'
@@ -403,8 +443,10 @@ export interface RootRouteChildren {
   PlaygroundRoute: typeof PlaygroundRoute
   PortfolioRoute: typeof PortfolioRoute
   PostsRoute: typeof PostsRouteWithChildren
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   RedirectRoute: typeof RedirectRoute
   SettingsRoute: typeof SettingsRoute
+  TermsOfServiceRoute: typeof TermsOfServiceRoute
   CourseIdRoute: typeof CourseIdRoute
   MerchantIdRoute: typeof MerchantIdRoute
   NotesNoteIdRoute: typeof NotesNoteIdRoute
@@ -421,8 +463,10 @@ const rootRouteChildren: RootRouteChildren = {
   PlaygroundRoute: PlaygroundRoute,
   PortfolioRoute: PortfolioRoute,
   PostsRoute: PostsRouteWithChildren,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   RedirectRoute: RedirectRoute,
   SettingsRoute: SettingsRoute,
+  TermsOfServiceRoute: TermsOfServiceRoute,
   CourseIdRoute: CourseIdRoute,
   MerchantIdRoute: MerchantIdRoute,
   NotesNoteIdRoute: NotesNoteIdRoute,
@@ -448,8 +492,10 @@ export const routeTree = rootRoute
         "/playground",
         "/portfolio",
         "/posts",
+        "/privacy-policy",
         "/redirect",
         "/settings",
+        "/terms-of-service",
         "/course/$id",
         "/merchant/$id",
         "/notes/$noteId",
@@ -487,11 +533,17 @@ export const routeTree = rootRoute
         "/posts/"
       ]
     },
+    "/privacy-policy": {
+      "filePath": "privacy-policy.tsx"
+    },
     "/redirect": {
       "filePath": "redirect.tsx"
     },
     "/settings": {
       "filePath": "settings.tsx"
+    },
+    "/terms-of-service": {
+      "filePath": "terms-of-service.tsx"
     },
     "/course/$id": {
       "filePath": "course.$id.tsx"
