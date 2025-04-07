@@ -10,13 +10,13 @@ import {
 } from "@tanstack/react-query";
 import { WagmiProvider } from 'wagmi';
 import {
-    rootstockTestnet, flowTestnet, celoAlfajores
+    eduChain
 } from 'wagmi/chains';
 
 const config = getDefaultConfig({
-    appName: 'My RainbowKit App',
+    appName: 'OpenEdu',
     projectId: 'YOUR_PROJECT_ID', // Replace with your WalletConnect project ID
-    chains: [rootstockTestnet, flowTestnet, celoAlfajores],
+    chains: [eduChain],
     ssr: true, // Enable server-side rendering if required
 });
 
@@ -26,7 +26,7 @@ export const WagmiRainbowKitProvider = ({ children }: { children: React.ReactNod
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                <RainbowKitProvider theme={darkTheme()} initialChain={flowTestnet}>
+                <RainbowKitProvider theme={darkTheme()} initialChain={eduChain}>
                     {children}
                 </RainbowKitProvider>
             </QueryClientProvider>
