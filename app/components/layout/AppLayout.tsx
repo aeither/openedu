@@ -1,6 +1,5 @@
 import React from 'react';
 import BottomNavigation from './BottomNavigation';
-import Header from './Header';
 
 interface AppLayoutProps {
   children: React.ReactNode;

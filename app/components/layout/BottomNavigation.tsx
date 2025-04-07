@@ -1,16 +1,14 @@
 import { cn } from '@/lib/utils';
 import { Link, useLocation } from '@tanstack/react-router';
-import { CreditCard, GraduationCap, Home, MessageSquare, PieChart } from 'lucide-react';
+import { Home, MessageSquare, Settings } from 'lucide-react';
 
 const BottomNavigation = () => {
   const location = useLocation();
   
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
-    { icon: CreditCard, label: "Earn", path: "/earn" },
-    { icon: PieChart, label: "Portfolio", path: "/portfolio" },
     { icon: MessageSquare, label: "Chat", path: "/chat" },
-    { icon: GraduationCap, label: "Learn", path: "/learn" },
+    { icon: Settings, label: "Settings", path: "/settings" },
   ];
 
   return (

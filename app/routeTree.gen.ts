@@ -23,6 +23,7 @@ import { Route as BalanceImport } from './routes/balance'
 import { Route as IndexImport } from './routes/index'
 import { Route as PostsIndexImport } from './routes/posts.index'
 import { Route as PostsPostIdImport } from './routes/posts.$postId'
+import { Route as NotesNoteIdImport } from './routes/notes.$noteId'
 import { Route as MerchantIdImport } from './routes/merchant.$id'
 import { Route as CourseIdImport } from './routes/course.$id'
 import { Route as PostsPostIdDeepImport } from './routes/posts_.$postId.deep'
@@ -99,6 +100,12 @@ const PostsPostIdRoute = PostsPostIdImport.update({
   id: '/$postId',
   path: '/$postId',
   getParentRoute: () => PostsRoute,
+} as any)
+
+const NotesNoteIdRoute = NotesNoteIdImport.update({
+  id: '/notes/$noteId',
+  path: '/notes/$noteId',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const MerchantIdRoute = MerchantIdImport.update({
@@ -207,6 +214,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MerchantIdImport
       parentRoute: typeof rootRoute
     }
+    '/notes/$noteId': {
+      id: '/notes/$noteId'
+      path: '/notes/$noteId'
+      fullPath: '/notes/$noteId'
+      preLoaderRoute: typeof NotesNoteIdImport
+      parentRoute: typeof rootRoute
+    }
     '/posts/$postId': {
       id: '/posts/$postId'
       path: '/$postId'
@@ -258,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/redirect': typeof RedirectRoute
   '/course/$id': typeof CourseIdRoute
   '/merchant/$id': typeof MerchantIdRoute
+  '/notes/$noteId': typeof NotesNoteIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/posts/': typeof PostsIndexRoute
   '/posts/$postId/deep': typeof PostsPostIdDeepRoute
@@ -275,6 +290,7 @@ export interface FileRoutesByTo {
   '/redirect': typeof RedirectRoute
   '/course/$id': typeof CourseIdRoute
   '/merchant/$id': typeof MerchantIdRoute
+  '/notes/$noteId': typeof NotesNoteIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/posts': typeof PostsIndexRoute
   '/posts/$postId/deep': typeof PostsPostIdDeepRoute
@@ -294,6 +310,7 @@ export interface FileRoutesById {
   '/redirect': typeof RedirectRoute
   '/course/$id': typeof CourseIdRoute
   '/merchant/$id': typeof MerchantIdRoute
+  '/notes/$noteId': typeof NotesNoteIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/posts/': typeof PostsIndexRoute
   '/posts_/$postId/deep': typeof PostsPostIdDeepRoute
@@ -314,6 +331,7 @@ export interface FileRouteTypes {
     | '/redirect'
     | '/course/$id'
     | '/merchant/$id'
+    | '/notes/$noteId'
     | '/posts/$postId'
     | '/posts/'
     | '/posts/$postId/deep'
@@ -330,6 +348,7 @@ export interface FileRouteTypes {
     | '/redirect'
     | '/course/$id'
     | '/merchant/$id'
+    | '/notes/$noteId'
     | '/posts/$postId'
     | '/posts'
     | '/posts/$postId/deep'
@@ -347,6 +366,7 @@ export interface FileRouteTypes {
     | '/redirect'
     | '/course/$id'
     | '/merchant/$id'
+    | '/notes/$noteId'
     | '/posts/$postId'
     | '/posts/'
     | '/posts_/$postId/deep'
@@ -366,6 +386,7 @@ export interface RootRouteChildren {
   RedirectRoute: typeof RedirectRoute
   CourseIdRoute: typeof CourseIdRoute
   MerchantIdRoute: typeof MerchantIdRoute
+  NotesNoteIdRoute: typeof NotesNoteIdRoute
   PostsPostIdDeepRoute: typeof PostsPostIdDeepRoute
 }
 
@@ -382,6 +403,7 @@ const rootRouteChildren: RootRouteChildren = {
   RedirectRoute: RedirectRoute,
   CourseIdRoute: CourseIdRoute,
   MerchantIdRoute: MerchantIdRoute,
+  NotesNoteIdRoute: NotesNoteIdRoute,
   PostsPostIdDeepRoute: PostsPostIdDeepRoute,
 }
 
@@ -407,6 +429,7 @@ export const routeTree = rootRoute
         "/redirect",
         "/course/$id",
         "/merchant/$id",
+        "/notes/$noteId",
         "/posts_/$postId/deep"
       ]
     },
@@ -449,6 +472,9 @@ export const routeTree = rootRoute
     },
     "/merchant/$id": {
       "filePath": "merchant.$id.tsx"
+    },
+    "/notes/$noteId": {
+      "filePath": "notes.$noteId.tsx"
     },
     "/posts/$postId": {
       "filePath": "posts.$postId.tsx",
