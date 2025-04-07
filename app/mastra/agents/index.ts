@@ -1,0 +1,65 @@
+import { groq } from '@ai-sdk/groq';
+import { Agent } from '@mastra/core/agent';
+import {
+  checkBalanceTool,
+  getTokenPriceTool,
+  mintNftTool,
+  sendNativeCoinTool,
+  showDashboardTool,
+  financeDashboardTool
+} from '../tools';
+
+const defaultAgent = new Agent({
+  name: 'Default Agent',
+  instructions: `
+      You are a helpful assistant
+  `,
+  model: groq('llama-3.3-70b-versatile'),
+});
+
+const uiToolAgent = new Agent({
+  name: 'UI Tool Agent',
+  instructions: `
+      You are a UI display agent that shows React components when requested.
+      
+      IMPORTANT: Your ONLY job is to call the appropriate tool when a request matches. 
+      DO NOT generate lengthy responses or explanations.
+      
+      Available tools:
+      - showDashboardTool: When user asks about their dashboard, profile, NFTs, or overall account status
+      
+      When you receive a request:
+      1. Immediately identify if it relates to viewing dashboard, profile, or NFT collection
+      2. If it does, call showDashboardTool without explanation
+      3. Do not provide any additional text before or after calling the tool
+      4. Keep any necessary response extremely brief (1-2 words maximum)
+      
+      Remember: Your value comes from showing the UI, not explaining it.
+  `,
+  model: groq('qwen-qwq-32b'),
+  tools: {
+    // showDashboardTool,
+    financeDashboardTool
+  },
+});
+
+const cryptoToolsAgent = new Agent({
+  name: 'Crypto Tools Agent',
+  instructions: `
+      You are a helpful assistant. 
+  `,
+  model: groq('qwen-qwq-32b'),
+  tools: {
+    mintNftTool,
+    sendNativeCoinTool,
+    checkBalanceTool,
+    getTokenPriceTool
+  },
+});
+
+// Export all agents from this file
+export const agents = {
+  defaultAgent,
+  uiToolAgent,
+  cryptoToolsAgent,
+};
