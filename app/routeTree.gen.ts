@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as SettingsImport } from './routes/settings'
 import { Route as RedirectImport } from './routes/redirect'
 import { Route as PostsImport } from './routes/posts'
 import { Route as PortfolioImport } from './routes/portfolio'
@@ -29,6 +30,12 @@ import { Route as CourseIdImport } from './routes/course.$id'
 import { Route as PostsPostIdDeepImport } from './routes/posts_.$postId.deep'
 
 // Create/Update Routes
+
+const SettingsRoute = SettingsImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const RedirectRoute = RedirectImport.update({
   id: '/redirect',
@@ -200,6 +207,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RedirectImport
       parentRoute: typeof rootRoute
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsImport
+      parentRoute: typeof rootRoute
+    }
     '/course/$id': {
       id: '/course/$id'
       path: '/course/$id'
@@ -270,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/portfolio': typeof PortfolioRoute
   '/posts': typeof PostsRouteWithChildren
   '/redirect': typeof RedirectRoute
+  '/settings': typeof SettingsRoute
   '/course/$id': typeof CourseIdRoute
   '/merchant/$id': typeof MerchantIdRoute
   '/notes/$noteId': typeof NotesNoteIdRoute
@@ -288,6 +303,7 @@ export interface FileRoutesByTo {
   '/playground': typeof PlaygroundRoute
   '/portfolio': typeof PortfolioRoute
   '/redirect': typeof RedirectRoute
+  '/settings': typeof SettingsRoute
   '/course/$id': typeof CourseIdRoute
   '/merchant/$id': typeof MerchantIdRoute
   '/notes/$noteId': typeof NotesNoteIdRoute
@@ -308,6 +324,7 @@ export interface FileRoutesById {
   '/portfolio': typeof PortfolioRoute
   '/posts': typeof PostsRouteWithChildren
   '/redirect': typeof RedirectRoute
+  '/settings': typeof SettingsRoute
   '/course/$id': typeof CourseIdRoute
   '/merchant/$id': typeof MerchantIdRoute
   '/notes/$noteId': typeof NotesNoteIdRoute
@@ -329,6 +346,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/posts'
     | '/redirect'
+    | '/settings'
     | '/course/$id'
     | '/merchant/$id'
     | '/notes/$noteId'
@@ -346,6 +364,7 @@ export interface FileRouteTypes {
     | '/playground'
     | '/portfolio'
     | '/redirect'
+    | '/settings'
     | '/course/$id'
     | '/merchant/$id'
     | '/notes/$noteId'
@@ -364,6 +383,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/posts'
     | '/redirect'
+    | '/settings'
     | '/course/$id'
     | '/merchant/$id'
     | '/notes/$noteId'
@@ -384,6 +404,7 @@ export interface RootRouteChildren {
   PortfolioRoute: typeof PortfolioRoute
   PostsRoute: typeof PostsRouteWithChildren
   RedirectRoute: typeof RedirectRoute
+  SettingsRoute: typeof SettingsRoute
   CourseIdRoute: typeof CourseIdRoute
   MerchantIdRoute: typeof MerchantIdRoute
   NotesNoteIdRoute: typeof NotesNoteIdRoute
@@ -401,6 +422,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortfolioRoute: PortfolioRoute,
   PostsRoute: PostsRouteWithChildren,
   RedirectRoute: RedirectRoute,
+  SettingsRoute: SettingsRoute,
   CourseIdRoute: CourseIdRoute,
   MerchantIdRoute: MerchantIdRoute,
   NotesNoteIdRoute: NotesNoteIdRoute,
@@ -427,6 +449,7 @@ export const routeTree = rootRoute
         "/portfolio",
         "/posts",
         "/redirect",
+        "/settings",
         "/course/$id",
         "/merchant/$id",
         "/notes/$noteId",
@@ -466,6 +489,9 @@ export const routeTree = rootRoute
     },
     "/redirect": {
       "filePath": "redirect.tsx"
+    },
+    "/settings": {
+      "filePath": "settings.tsx"
     },
     "/course/$id": {
       "filePath": "course.$id.tsx"
