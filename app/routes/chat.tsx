@@ -13,11 +13,13 @@ import {
   financeDashboardTool,
   mintNftTool,
   sendNativeCoinTool,
-  showDashboardTool
+  showDashboardTool,
+  swapTool
 } from "../mastra/tools";
 
 // Lazy load components
 const FinanceDashboardTool = lazy(() => import("@/components/ui-tools/FinanceDashboardTool"));
+const SwapTool = lazy(() => import("@/components/ui-tools/SwapTool"));
 
 type Part = {
   type: "tool-invocation" | "text";
@@ -98,6 +100,22 @@ const MessagePartRenderer = memo(({ part, index }: { part: Part, index: number }
     );
   }
 
+  if (part.type === "tool-invocation" && part.toolInvocation?.toolName === swapTool.id) {
+    if (part.toolInvocation.state === "result") {
+      return (
+        <Suspense fallback={<p className="text-muted-foreground italic">Loading token swap interface...</p>}>
+          <SwapTool key={index} />
+        </Suspense>
+      );
+    }
+
+    return (
+      <p key={index} className="text-muted-foreground italic">
+        Loading token swap interface...
+      </p>
+    );
+  }
+
   // Only show loading for tool invocations in "call" state
   if (part.type === "tool-invocation" && part.toolInvocation?.state === "call") {
     return (
@@ -118,13 +136,6 @@ const MessageBubble = memo(({ message }: { message: any }) => {
   const isAssistant = message.role === "assistant";
   const isUser = message.role === "user";
   const hasParts = isAssistant && Array.isArray(message.parts);
-
-  // Check if this is just a dashboard tool message
-  const isOnlyDashboard = isAssistant && message.parts?.some(
-    (part: any) =>
-      part.type === "tool-invocation" &&
-      (part.toolInvocation?.toolName === financeDashboardTool.id)
-  );
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
@@ -240,6 +251,10 @@ function ChatContent() {
 
           case financeDashboardTool.id:
             // Add logic to handle financeDashboardTool
+            break;
+
+          case swapTool.id:
+            // Add logic to handle swapTool
             break;
 
           default:

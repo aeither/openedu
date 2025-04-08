@@ -6,7 +6,8 @@ import {
   mintNftTool,
   sendNativeCoinTool,
   showDashboardTool,
-  financeDashboardTool
+  financeDashboardTool,
+  swapTool
 } from '../tools';
 
 const defaultAgent = new Agent({
@@ -39,7 +40,9 @@ const uiToolAgent = new Agent({
   model: groq('qwen-qwq-32b'),
   tools: {
     // showDashboardTool,
-    financeDashboardTool
+    financeDashboardTool,
+    swapTool
+    //
   },
 });
 

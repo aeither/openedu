@@ -121,3 +121,19 @@ export const financeDashboardTool = createTool({
     };
   }
 });
+
+// Tool for swapping tokens
+export const swapTool = createTool({
+  id: 'swapTool',
+  description: 'Swap WEDU tokens for USDC using Sailfish DEX',
+  inputSchema: z.object({}),
+  outputSchema: z.object({
+    status: z.string().describe('Show the token swap interface and complete')
+  }),
+  execute: async () => {
+    // This tool is UI-only, so we just return a success status
+    return {
+      status: 'token swap tool called successfully'
+    };
+  }
+});
