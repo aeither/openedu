@@ -1,24 +1,23 @@
 "use client";
 
-import ShowDashboardTool from "@/components/ui-tools/ShowDashboardTool";
-import FinanceDashboardTool from "@/components/ui-tools/FinanceDashboardTool";
 import { Button } from "@/components/ui/button";
 import { useMintNftTool } from "@/hooks/useMintNft";
 import { useSendNativeCoinTool } from "@/hooks/useSendNativeCoin";
-import { useTRPC } from "@/trpc/react";
 import { useChat } from "@ai-sdk/react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowUp, RotateCcw } from "lucide-react";
-import { type FormEvent, useEffect, useState } from "react";
+import { lazy, Suspense, type FormEvent, useEffect, useState, memo } from "react";
 import ReactMarkdown from "react-markdown";
 import { useAccount } from "wagmi";
 import {
+  financeDashboardTool,
   mintNftTool,
   sendNativeCoinTool,
-  showDashboardTool,
-  financeDashboardTool
+  showDashboardTool
 } from "../mastra/tools";
+
+// Lazy load components
+const FinanceDashboardTool = lazy(() => import("@/components/ui-tools/FinanceDashboardTool"));
 
 type Part = {
   type: "tool-invocation" | "text";
@@ -40,30 +39,9 @@ export const Route = createFileRoute('/chat')({
 });
 
 // Feature Card Component
-const FeatureCard = () => {
-  const trpc = useTRPC();
-  // const campaignQuery = useSuspenseQuery(trpc.task.getCampaignStatus.queryOptions());
-  // const campaign = campaignQuery.data as Campaign | undefined;
-  // const progress = campaign ? (Number(campaign.currentAmount) / Number(campaign.totalAmount)) * 100 : 0;
-
+const FeatureCard = memo(() => {
   return (
     <div className="space-y-6">
-      {/* <div className="bg-secondary/50 rounded-2xl p-6 space-y-4 max-w-2xl mx-auto">
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold text-primary">🎉 Try to Earn Giveaway</h2>
-          <div className="space-y-2">
-            <p className="text-muted-foreground">Join our community and earn CRO tokens! Complete tasks to receive rewards.</p>
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Campaign Progress</span>
-                <span className="font-medium">{campaign?.currentAmount} / {campaign?.totalAmount} CRO</span>
-              </div>
-              <Progress value={progress} className="h-2" />
-            </div>
-          </div>
-        </div>
-      </div> */}
-
       <div className="bg-secondary/50 rounded-2xl p-6 space-y-4 max-w-2xl mx-auto">
         <h2 className="text-xl font-semibold">Available Features</h2>
         <div className="space-y-3">
@@ -90,10 +68,12 @@ const FeatureCard = () => {
       </div>
     </div>
   );
-};
+});
+
+FeatureCard.displayName = "FeatureCard";
 
 // Message Part Renderer Component
-const MessagePartRenderer = ({ part, index }: { part: Part, index: number }) => {
+const MessagePartRenderer = memo(({ part, index }: { part: Part, index: number }) => {
   if (part.type === "text") {
     return (
       <div key={index} className="prose dark:prose-invert max-w-none">
@@ -102,21 +82,13 @@ const MessagePartRenderer = ({ part, index }: { part: Part, index: number }) => 
     );
   }
 
-  // if (part.type === "tool-invocation" && part.toolInvocation?.toolName === showDashboardTool.id) {
-  //   if (part.toolInvocation.state === "result") {
-  //     return <ShowDashboardTool key={index} />;
-  //   }
-
-  //   return (
-  //     <p key={index} className="text-muted-foreground italic">
-  //       Loading dashboard...
-  //     </p>
-  //   );
-  // }
-
   if (part.type === "tool-invocation" && part.toolInvocation?.toolName === financeDashboardTool.id) {
     if (part.toolInvocation.state === "result") {
-      return <FinanceDashboardTool key={index} />;
+      return (
+        <Suspense fallback={<p className="text-muted-foreground italic">Loading finance dashboard...</p>}>
+          <FinanceDashboardTool key={index} />
+        </Suspense>
+      );
     }
 
     return (
@@ -137,10 +109,12 @@ const MessagePartRenderer = ({ part, index }: { part: Part, index: number }) => 
 
   // For any other unhandled part types, return null
   return null;
-};
+});
+
+MessagePartRenderer.displayName = "MessagePartRenderer";
 
 // Message Bubble Component
-const MessageBubble = ({ message }: { message: any }) => {
+const MessageBubble = memo(({ message }: { message: any }) => {
   const isAssistant = message.role === "assistant";
   const isUser = message.role === "user";
   const hasParts = isAssistant && Array.isArray(message.parts);
@@ -149,16 +123,15 @@ const MessageBubble = ({ message }: { message: any }) => {
   const isOnlyDashboard = isAssistant && message.parts?.some(
     (part: any) =>
       part.type === "tool-invocation" &&
-      (part.toolInvocation?.toolName === showDashboardTool.id ||
-        part.toolInvocation?.toolName === financeDashboardTool.id)
+      (part.toolInvocation?.toolName === financeDashboardTool.id)
   );
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
         className={`max-w-[80%] ${isUser
-            ? "bg-primary/20 text-foreground rounded-2xl rounded-tr-none"
-            : "bg-secondary text-foreground rounded-2xl rounded-tl-none"
+          ? "bg-primary/20 text-foreground rounded-2xl rounded-tr-none"
+          : "bg-secondary text-foreground rounded-2xl rounded-tl-none"
           } p-4`}
       >
         {hasParts ? (
@@ -172,20 +145,21 @@ const MessageBubble = ({ message }: { message: any }) => {
             <ReactMarkdown>{message.content}</ReactMarkdown>
           </div>
         )}
-
-        {/* Show claim points card for assistant messages that aren't just dashboard */}
-        {/* {isAssistant && !isOnlyDashboard && <ClaimPointsCard points={500} />} */}
       </div>
     </div>
   );
-};
+});
+
+MessageBubble.displayName = "MessageBubble";
 
 function ChatContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { isConnected, address } = useAccount();
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  
+  // Keep hooks at the top level, but we can conditionally use their results
   const { handleMintNft } = useMintNftTool();
   const { handleSendNativeCoin } = useSendNativeCoinTool();
-  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
 
   // Handle iOS viewport issues with keyboard
   useEffect(() => {
@@ -237,32 +211,34 @@ function ChatContent() {
       try {
         switch (toolCall.toolName) {
           case mintNftTool.id:
-            await handleMintNft(
-              { to: address },
-              (confirmationResult) => {
-                append({
-                  content: confirmationResult,
-                  role: 'data'
-                });
-              }
-            );
+            if (isConnected && address) {
+              await handleMintNft(
+                { to: address },
+                (confirmationResult: string) => {
+                  append({
+                    content: confirmationResult,
+                    role: 'data'
+                  });
+                }
+              );
+            }
             break;
 
           case sendNativeCoinTool.id:
-            console.log("toolCall.args", toolCall.args);
-            await handleSendNativeCoin(
-              toolCall.args,
-              (confirmationResult: string) => {
-                append({
-                  content: confirmationResult,
-                  role: 'data'
-                });
-              }
-            );
+            if (isConnected && address) {
+              await handleSendNativeCoin(
+                toolCall.args,
+                (confirmationResult: string) => {
+                  append({
+                    content: confirmationResult,
+                    role: 'data'
+                  });
+                }
+              );
+            }
             break;
 
           case financeDashboardTool.id:
-            console.log("toolCall.args", toolCall.args);
             // Add logic to handle financeDashboardTool
             break;
 
