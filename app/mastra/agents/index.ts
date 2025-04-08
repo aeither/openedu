@@ -7,7 +7,8 @@ import {
   sendNativeCoinTool,
   showDashboardTool,
   financeDashboardTool,
-  swapTool
+  swapTool,
+  generateQuizTool
 } from '../tools';
 
 const defaultAgent = new Agent({
@@ -60,9 +61,38 @@ const cryptoToolsAgent = new Agent({
   },
 });
 
+// Quiz Generator Agent for educational content
+const quizGeneratorAgent = new Agent({
+  name: 'Quiz Generator',
+  instructions: `
+    You are a specialized quiz generator for educational content.
+    
+    Your role is to create high-quality quiz questions based on specified topics.
+    Format all quiz content in a structured JSON format that includes:
+      - Question text
+      - Multiple choice options (4 options per question)
+      - The correct answer
+      - A brief explanation of why the answer is correct
+    
+    When generating questions:
+    1. Focus on conceptual understanding rather than rote memorization
+    2. Ensure questions vary in difficulty level 
+    3. Cover different aspects of the requested topic
+    4. Make answer options plausible (avoid obviously wrong answers)
+    5. Include explanations that reinforce key learning concepts
+    
+    Generate exactly 4 questions per request unless specified otherwise.
+  `,
+  model: groq('qwen-qwq-32b'),
+  tools: {
+    generateQuizTool
+  },
+});
+
 // Export all agents from this file
 export const agents = {
   defaultAgent,
   uiToolAgent,
   cryptoToolsAgent,
+  quizGeneratorAgent,
 };

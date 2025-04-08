@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as TermsOfServiceImport } from './routes/terms-of-service'
 import { Route as SettingsImport } from './routes/settings'
 import { Route as RedirectImport } from './routes/redirect'
+import { Route as QuizImport } from './routes/quiz'
 import { Route as PrivacyPolicyImport } from './routes/privacy-policy'
 import { Route as PostsImport } from './routes/posts'
 import { Route as PortfolioImport } from './routes/portfolio'
@@ -48,6 +49,12 @@ const SettingsRoute = SettingsImport.update({
 const RedirectRoute = RedirectImport.update({
   id: '/redirect',
   path: '/redirect',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const QuizRoute = QuizImport.update({
+  id: '/quiz',
+  path: '/quiz',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -221,6 +228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyPolicyImport
       parentRoute: typeof rootRoute
     }
+    '/quiz': {
+      id: '/quiz'
+      path: '/quiz'
+      fullPath: '/quiz'
+      preLoaderRoute: typeof QuizImport
+      parentRoute: typeof rootRoute
+    }
     '/redirect': {
       id: '/redirect'
       path: '/redirect'
@@ -312,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/portfolio': typeof PortfolioRoute
   '/posts': typeof PostsRouteWithChildren
   '/privacy-policy': typeof PrivacyPolicyRoute
+  '/quiz': typeof QuizRoute
   '/redirect': typeof RedirectRoute
   '/settings': typeof SettingsRoute
   '/terms-of-service': typeof TermsOfServiceRoute
@@ -333,6 +348,7 @@ export interface FileRoutesByTo {
   '/playground': typeof PlaygroundRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
+  '/quiz': typeof QuizRoute
   '/redirect': typeof RedirectRoute
   '/settings': typeof SettingsRoute
   '/terms-of-service': typeof TermsOfServiceRoute
@@ -356,6 +372,7 @@ export interface FileRoutesById {
   '/portfolio': typeof PortfolioRoute
   '/posts': typeof PostsRouteWithChildren
   '/privacy-policy': typeof PrivacyPolicyRoute
+  '/quiz': typeof QuizRoute
   '/redirect': typeof RedirectRoute
   '/settings': typeof SettingsRoute
   '/terms-of-service': typeof TermsOfServiceRoute
@@ -380,6 +397,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/posts'
     | '/privacy-policy'
+    | '/quiz'
     | '/redirect'
     | '/settings'
     | '/terms-of-service'
@@ -400,6 +418,7 @@ export interface FileRouteTypes {
     | '/playground'
     | '/portfolio'
     | '/privacy-policy'
+    | '/quiz'
     | '/redirect'
     | '/settings'
     | '/terms-of-service'
@@ -421,6 +440,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/posts'
     | '/privacy-policy'
+    | '/quiz'
     | '/redirect'
     | '/settings'
     | '/terms-of-service'
@@ -444,6 +464,7 @@ export interface RootRouteChildren {
   PortfolioRoute: typeof PortfolioRoute
   PostsRoute: typeof PostsRouteWithChildren
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
+  QuizRoute: typeof QuizRoute
   RedirectRoute: typeof RedirectRoute
   SettingsRoute: typeof SettingsRoute
   TermsOfServiceRoute: typeof TermsOfServiceRoute
@@ -464,6 +485,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortfolioRoute: PortfolioRoute,
   PostsRoute: PostsRouteWithChildren,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
+  QuizRoute: QuizRoute,
   RedirectRoute: RedirectRoute,
   SettingsRoute: SettingsRoute,
   TermsOfServiceRoute: TermsOfServiceRoute,
@@ -493,6 +515,7 @@ export const routeTree = rootRoute
         "/portfolio",
         "/posts",
         "/privacy-policy",
+        "/quiz",
         "/redirect",
         "/settings",
         "/terms-of-service",
@@ -535,6 +558,9 @@ export const routeTree = rootRoute
     },
     "/privacy-policy": {
       "filePath": "privacy-policy.tsx"
+    },
+    "/quiz": {
+      "filePath": "quiz.tsx"
     },
     "/redirect": {
       "filePath": "redirect.tsx"
