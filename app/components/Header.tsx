@@ -3,12 +3,8 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useMutation } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { PenSquare } from 'lucide-react'; 
+import { useAccount } from 'wagmi';
 
 export function Header() {
   const { address, isConnected } = useAccount();
@@ -18,7 +14,7 @@ export function Header() {
 
   // Existing user creation mutation
   const createUserMutation = useMutation(
-    trpc.task.createUserWithWelcomeTask.mutationOptions({
+    trpc.user.createUser.mutationOptions({
       onError: (error: any) => {
         if (error.data?.code !== 'CONFLICT') {
           console.error('Failed to create user:', error);

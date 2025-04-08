@@ -3,7 +3,6 @@
 import ShowDashboardTool from "@/components/ui-tools/ShowDashboardTool";
 import FinanceDashboardTool from "@/components/ui-tools/FinanceDashboardTool";
 import { Button } from "@/components/ui/button";
-import type { Campaign } from "@/db/schema";
 import { useMintNftTool } from "@/hooks/useMintNft";
 import { useSendNativeCoinTool } from "@/hooks/useSendNativeCoin";
 import { useTRPC } from "@/trpc/react";
@@ -43,9 +42,9 @@ export const Route = createFileRoute('/chat')({
 // Feature Card Component
 const FeatureCard = () => {
   const trpc = useTRPC();
-  const campaignQuery = useSuspenseQuery(trpc.task.getCampaignStatus.queryOptions());
-  const campaign = campaignQuery.data as Campaign | undefined;
-  const progress = campaign ? (Number(campaign.currentAmount) / Number(campaign.totalAmount)) * 100 : 0;
+  // const campaignQuery = useSuspenseQuery(trpc.task.getCampaignStatus.queryOptions());
+  // const campaign = campaignQuery.data as Campaign | undefined;
+  // const progress = campaign ? (Number(campaign.currentAmount) / Number(campaign.totalAmount)) * 100 : 0;
 
   return (
     <div className="space-y-6">
@@ -102,31 +101,31 @@ const MessagePartRenderer = ({ part, index }: { part: Part, index: number }) => 
       </div>
     );
   }
-  
+
   // if (part.type === "tool-invocation" && part.toolInvocation?.toolName === showDashboardTool.id) {
   //   if (part.toolInvocation.state === "result") {
   //     return <ShowDashboardTool key={index} />;
   //   }
-    
+
   //   return (
   //     <p key={index} className="text-muted-foreground italic">
   //       Loading dashboard...
   //     </p>
   //   );
   // }
-  
+
   if (part.type === "tool-invocation" && part.toolInvocation?.toolName === financeDashboardTool.id) {
     if (part.toolInvocation.state === "result") {
       return <FinanceDashboardTool key={index} />;
     }
-    
+
     return (
       <p key={index} className="text-muted-foreground italic">
         Loading finance dashboard...
       </p>
     );
   }
-  
+
   // Only show loading for tool invocations in "call" state
   if (part.type === "tool-invocation" && part.toolInvocation?.state === "call") {
     return (
@@ -135,7 +134,7 @@ const MessagePartRenderer = ({ part, index }: { part: Part, index: number }) => 
       </p>
     );
   }
-  
+
   // For any other unhandled part types, return null
   return null;
 };
@@ -145,23 +144,22 @@ const MessageBubble = ({ message }: { message: any }) => {
   const isAssistant = message.role === "assistant";
   const isUser = message.role === "user";
   const hasParts = isAssistant && Array.isArray(message.parts);
-  
+
   // Check if this is just a dashboard tool message
   const isOnlyDashboard = isAssistant && message.parts?.some(
-    (part: any) => 
+    (part: any) =>
       part.type === "tool-invocation" &&
-      (part.toolInvocation?.toolName === showDashboardTool.id || 
-       part.toolInvocation?.toolName === financeDashboardTool.id)
+      (part.toolInvocation?.toolName === showDashboardTool.id ||
+        part.toolInvocation?.toolName === financeDashboardTool.id)
   );
-  
+
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[80%] ${
-          isUser 
+        className={`max-w-[80%] ${isUser
             ? "bg-primary/20 text-foreground rounded-2xl rounded-tr-none"
             : "bg-secondary text-foreground rounded-2xl rounded-tl-none"
-        } p-4`}
+          } p-4`}
       >
         {hasParts ? (
           // Render each part for assistant messages
@@ -174,7 +172,7 @@ const MessageBubble = ({ message }: { message: any }) => {
             <ReactMarkdown>{message.content}</ReactMarkdown>
           </div>
         )}
-        
+
         {/* Show claim points card for assistant messages that aren't just dashboard */}
         {/* {isAssistant && !isOnlyDashboard && <ClaimPointsCard points={500} />} */}
       </div>
@@ -193,12 +191,12 @@ function ChatContent() {
   useEffect(() => {
     // Set initial viewport height
     setViewportHeight(window.innerHeight);
-    
+
     const handleResize = () => {
       // Update viewport height when window resizes
       setViewportHeight(window.innerHeight);
     };
-    
+
     // Handle focus and blur events on the textarea to manage iOS keyboard
     const handleFocus = () => {
       // On iOS, add a short timeout to allow the keyboard to appear
@@ -207,15 +205,15 @@ function ChatContent() {
         document.documentElement.scrollTop = 0;
       }, 50);
     };
-    
+
     window.addEventListener('resize', handleResize);
-    
+
     // Get the textarea element
     const textarea = document.querySelector('textarea');
     if (textarea) {
       textarea.addEventListener('focus', handleFocus);
     }
-    
+
     return () => {
       window.removeEventListener('resize', handleResize);
       if (textarea) {
@@ -224,14 +222,14 @@ function ChatContent() {
     };
   }, []);
 
-  const { 
-    messages, 
-    input, 
-    handleInputChange, 
-    handleSubmit, 
-    isLoading, 
-    addToolResult, 
-    append 
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    addToolResult,
+    append
   } = useChat({
     api: "/api/chat",
     maxSteps: 1,
@@ -305,11 +303,11 @@ function ChatContent() {
         </div>
       );
     }
-    
+
     if (messages.length === 0) {
       return <FeatureCard />;
     }
-    
+
     return (
       <>
         {messages.map((message) => (
@@ -320,9 +318,9 @@ function ChatContent() {
   };
 
   return (
-    <div 
-      className="flex flex-col bg-background" 
-      style={{ 
+    <div
+      className="flex flex-col bg-background"
+      style={{
         height: viewportHeight ? `${viewportHeight - 64}px` : 'calc(100vh - 64px)',
         maxHeight: '100vh'
       }}
