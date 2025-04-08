@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useTRPC } from '@/trpc/react';
+import { useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { RefreshCw } from 'lucide-react';
 import { useState } from 'react';
@@ -27,56 +29,44 @@ export const Route = createFileRoute('/quiz')({
 });
 
 function QuizComponent() {
+  const trpc = useTRPC();
   const [topic, setTopic] = useState('');
   const [count, setCount] = useState(4);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
 
-  // Function to generate a quiz using the API endpoint
+  const generateQuizMutation = useMutation(
+    trpc.quiz.generateQuiz.mutationOptions({
+      onSuccess: (data: QuizData) => {
+        setQuizData(data);
+        setCurrentQuestion(0);
+        setSelectedAnswer(null);
+        setShowExplanation(false);
+      },
+      onError: (error: any) => {
+        console.error('Error generating quiz:', error);
+      }
+    })
+  );
+
+  // Function to generate a quiz using tRPC
   const generateQuiz = async () => {
     if (!topic) {
-      setError('Please enter a topic');
+      generateQuizMutation.reset();
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
     setQuizData(null);
     setCurrentQuestion(0);
     setSelectedAnswer(null);
     setShowExplanation(false);
 
-    try {
-      // Call the API endpoint
-      const response = await fetch('/api/quiz', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          topic,
-          count
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to generate quiz');
-      }
-
-      const result = await response.json();
-
-      // Set the result as the quiz data
-      setQuizData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate quiz');
-    } finally {
-      setIsLoading(false);
-    }
+    generateQuizMutation.mutate({ 
+      topic, 
+      count 
+    });
   };
 
   const handleNextQuestion = () => {
@@ -136,10 +126,10 @@ function QuizComponent() {
             
             <Button 
               onClick={generateQuiz} 
-              disabled={isLoading}
+              disabled={generateQuizMutation.isPending}
               className="w-full"
             >
-              {isLoading ? (
+              {generateQuizMutation.isPending ? (
                 <>
                   <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Generating Quiz...
@@ -149,7 +139,13 @@ function QuizComponent() {
               )}
             </Button>
             
-            {error && <p className="text-destructive text-sm">{error}</p>}
+            {generateQuizMutation.isError && (
+              <p className="text-destructive text-sm">
+                {generateQuizMutation.error instanceof Error 
+                  ? generateQuizMutation.error.message 
+                  : 'Failed to generate quiz'}
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
