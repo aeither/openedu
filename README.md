@@ -17,7 +17,7 @@ DEMO_LINK
 - **Natural Language Interface**: Dynamic interface that invokes the app you need using natural language commands.
 - **Extensive Knowledge Base**: Comprehensive EDU Chain knowledge repository.
 - **Mainnet Ready**: Fully compatible with production blockchain environment.
-- **Exclusive Content**: Token-gated campaigns with content accessible only to early adopters.
+- **Token-Gated Access**: The entire platform is token-gated, exclusively accessible to early adopters of EDU Chain.
 - **Educational Tools**: Notes, flashcards, and AI-powered quiz generation for effective learning.
 - **Growing Ecosystem**: Upcoming collaborations to integrate more protocols with co-marketing initiatives.
 
@@ -102,7 +102,7 @@ OpenEdu follows a modern frontend architecture with blockchain integration:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/openedu.git
+git clone https://github.com/aeither/openedu.git
 cd openedu
 
 # Install dependencies
@@ -127,16 +127,3 @@ pnpm build
 # Start the production server
 pnpm start
 ```
-
-## 📱 Key Pages and Components
-
-- **Home**: Dashboard showing your learning journey and recent activities
-- **Notes**: Create and manage your educational notes
-- **Quiz**: Generate quizzes on any topic using AI
-- **Flashcards**: Create and study flashcards with spaced repetition
-- **Balance**: View and manage your token balances in the EDU Chain ecosystem
-- **Chat**: Interact with AI assistants for learning support
-
-<div align="center">
-    <img src="https://github.com/user-attachments/assets/fcd01c05-eb88-4baa-b131-e1f990b76885" alt="Logo" width="600">
-</div>
