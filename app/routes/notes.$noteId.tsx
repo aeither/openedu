@@ -4,10 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import ReactMarkdown from 'react-markdown';
 import { useTRPC } from '../trpc/react';
-import { Check, Edit, X } from 'lucide-react';
+import { Check, Edit, Trash, X } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import AppLayout from '@/components/layout/AppLayout';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute('/notes/$noteId')({
   component: NoteDetailPage,
@@ -26,6 +36,7 @@ function NoteDetailPage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(note?.content || '');
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Update note mutation
   const updateNoteMutation = useMutation(
@@ -43,6 +54,27 @@ function NoteDetailPage() {
         toast({
           title: "Error",
           description: `Failed to save note: ${error.message}`,
+          variant: "destructive",
+        });
+      }
+    })
+  );
+
+  // Delete note mutation
+  const deleteNoteMutation = useMutation(
+    trpc.notes.deleteNote.mutationOptions({
+      onSuccess: () => {
+        toast({
+          title: "Note deleted",
+          description: "Your note has been deleted successfully.",
+        });
+        // Navigate back to notes list
+        navigate({ to: '/' });
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Error",
+          description: `Failed to delete note: ${error.message}`,
           variant: "destructive",
         });
       }
@@ -74,6 +106,18 @@ function NoteDetailPage() {
     if (!note) return;
     // Navigate to quiz generator with prefilled content
     navigate({ to: '/quiz', search: { content: note.content } });
+  };
+
+  const handleDeleteNote = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (!noteId) return;
+    
+    deleteNoteMutation.mutate({ 
+      noteId 
+    });
   };
 
   if (isLoading) {
@@ -126,14 +170,25 @@ function NoteDetailPage() {
             <Button variant="outline" size="sm" onClick={handleCreateQuiz}>Create Quiz</Button>
             <Button variant="outline" size="sm">Chat</Button>
             {!isEditing && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleEdit} 
-                aria-label="Edit note"
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={handleEdit} 
+                  aria-label="Edit note"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={handleDeleteNote} 
+                  aria-label="Delete note"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash className="h-4 w-4" />
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -181,6 +236,35 @@ function NoteDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this note?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your note and remove it from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteNoteMutation.isPending}
+            >
+              {deleteNoteMutation.isPending ? (
+                <span className="flex items-center">
+                  <span className="animate-spin h-4 w-4 mr-2 border-2 border-current border-t-transparent rounded-full"></span>
+                  Deleting...
+                </span>
+              ) : (
+                "Delete"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }
