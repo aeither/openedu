@@ -15,9 +15,10 @@ import {
   mintNftTool,
   sendNativeCoinTool,
   showDashboardTool,
-  swapTool
+  swapTool,
+  yuzuBuddiesMinterTool
 } from "../mastra/tools";
-import { GraspAcademyNFTTool } from "@/components/ui-tools";
+import { GraspAcademyNFTTool, YuzuBuddiesMinterTool } from "@/components/ui-tools";
 
 // Lazy load components
 const FinanceDashboardTool = lazy(() => import("@/components/ui-tools/FinanceDashboardTool"));
@@ -130,6 +131,22 @@ const MessagePartRenderer = memo(({ part, index }: { part: Part, index: number }
     return (
       <p key={index} className="text-muted-foreground italic">
         Loading Grasp Academy NFT interface...
+      </p>
+    );
+  }
+
+  if (part.type === "tool-invocation" && part.toolInvocation?.toolName === yuzuBuddiesMinterTool.id) {
+    if (part.toolInvocation.state === "result") {
+      return (
+        <Suspense fallback={<p className="text-muted-foreground italic">Loading Yuzu Buddies minter interface...</p>}>
+          <YuzuBuddiesMinterTool key={index} />
+        </Suspense>
+      );
+    }
+
+    return (
+      <p key={index} className="text-muted-foreground italic">
+        Loading Yuzu Buddies minter interface...
       </p>
     );
   }

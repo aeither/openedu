@@ -32,7 +32,7 @@ const NFT_IMAGE = "https://ipfs.io/ipfs/Qmd6tSTzsy2M6Z3BpfP1SEJ2Cd7eX5GXzY1DWNaZ
 const MINT_COST = "0.0333"; // ETH
 
 export default function GraspAcademyNFTTool() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chain } = useAccount();
   const { connectors, connect } = useConnect();
   const chainId = useChainId();
   const { chains, switchChain } = useSwitchChain();
@@ -53,6 +53,12 @@ export default function GraspAcademyNFTTool() {
   const { isLoading: isTxLoading, isSuccess: isTxSuccess } = useTransaction({
     hash: txHash,
   });
+
+  // Get explorer URL for transaction
+  const getExplorerUrl = (hash: string) => {
+    if (!chain?.blockExplorers?.default?.url) return '#';
+    return `${chain.blockExplorers.default.url}/tx/${hash}`;
+  };
 
   // Handle mint function
   const handleMint = async () => {
@@ -113,7 +119,15 @@ export default function GraspAcademyNFTTool() {
         
         {isTxSuccess && txHash && (
           <p className="text-sm text-green-500">
-            Successfully minted! Transaction: {txHash.slice(0, 6)}...{txHash.slice(-4)}
+            Successfully minted! Transaction: {" "}
+            <a 
+              href={getExplorerUrl(txHash)} 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-green-600"
+            >
+              {txHash.slice(0, 6)}...{txHash.slice(-4)}
+            </a>
           </p>
         )}
       </CardFooter>

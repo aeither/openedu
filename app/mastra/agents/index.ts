@@ -9,7 +9,8 @@ import {
   financeDashboardTool,
   swapTool,
   generateQuizTool,
-  graspAcademyNFTTool
+  graspAcademyNFTTool,
+  yuzuBuddiesMinterTool
 } from '../tools';
 
 const defaultAgent = new Agent({
@@ -44,7 +45,8 @@ const uiToolAgent = new Agent({
     // showDashboardTool,
     financeDashboardTool,
     swapTool,
-    graspAcademyNFTTool
+    graspAcademyNFTTool,
+    yuzuBuddiesMinterTool
     //
   },
 });

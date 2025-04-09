@@ -16,7 +16,7 @@ export const APIRoute = createAPIFileRoute('/api/chat')({
         const { object } = await generateObject({
             model: groq('qwen-qwq-32b'),
             output: 'enum',
-            enum: ['default', 'crypto', 'show'],
+            enum: ['default', 'show'],
             prompt: lastUserMessage,
             system: `You are a planning assistant that determines which specialized agent would be most helpful for a user's query.
     
@@ -24,7 +24,7 @@ export const APIRoute = createAPIFileRoute('/api/chat')({
     - "default": For all other requests
     - "show": For requests that require showing UI components
     
-    Your response should ONLY be a single string containing the most appropriate agent type: "show", "crypto", or "default".
+    Your response should ONLY be a single string containing the most appropriate agent type: "show" or "default".
     Do not include any other text in your response.`,
         });
         console.log("Agent: ", object)

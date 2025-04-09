@@ -156,6 +156,22 @@ export const graspAcademyNFTTool = createTool({
   }
 });
 
+// Tool for minting Yuzu Buddies NFT
+export const yuzuBuddiesMinterTool = createTool({
+  id: 'yuzuBuddiesMinterTool',
+  description: 'Mint free Yuzu Buddies (Yubu) NFTs - choose from 4 different characters',
+  inputSchema: z.object({}),
+  outputSchema: z.object({
+    status: z.string().describe('Status of the tool execution')
+  }),
+  async execute() {
+    return {
+      status: 'Yuzu Buddies minting interface displayed',
+      ui: 'YuzuBuddiesMinterTool'
+    }
+  }
+});
+
 // Tool for generating educational quizzes
 export const generateQuizTool = createTool({
   id: 'generateQuizTool',
