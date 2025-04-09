@@ -21,8 +21,16 @@ export const APIRoute = createAPIFileRoute('/api/chat')({
             system: `You are a planning assistant that determines which specialized agent would be most helpful for a user's query.
     
     Based on the user's request, you must decide which of the following predefined agent types would be most appropriate:
-    - "default": For all other requests
-    - "show": For requests that require showing UI components
+    - "default": For general questions, explanations, and regular assistance
+    - "show": For requests that require showing UI components, visualizations, or interactive interfaces
+    
+    Examples of "show" requests:
+    - "Show me my dashboard"
+    - "I want to create a quiz"
+    - "Generate a quiz from my notes"
+    - "Help me swap tokens"
+    - "I want to mint an NFT"
+    - "Show me my wallet balance"
     
     Your response should ONLY be a single string containing the most appropriate agent type: "show" or "default".
     Do not include any other text in your response.`,

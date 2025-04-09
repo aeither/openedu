@@ -10,7 +10,8 @@ import {
   swapTool,
   generateQuizTool,
   graspAcademyNFTTool,
-  yuzuBuddiesMinterTool
+  yuzuBuddiesMinterTool,
+  quizGeneratorUITool
 } from '../tools';
 
 const defaultAgent = new Agent({
@@ -42,12 +43,13 @@ const uiToolAgent = new Agent({
   `,
   model: groq('qwen-qwq-32b'),
   tools: {
-    // showDashboardTool,
+    showDashboardTool,
     financeDashboardTool,
     swapTool,
     graspAcademyNFTTool,
-    yuzuBuddiesMinterTool
-    //
+    yuzuBuddiesMinterTool,
+    quizGeneratorUITool
+    // add it here
   },
 });
 

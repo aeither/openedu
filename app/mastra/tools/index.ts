@@ -172,6 +172,21 @@ export const yuzuBuddiesMinterTool = createTool({
   }
 });
 
+// add a tool for showing quiz gen ui
+export const quizGeneratorUITool = createTool({
+  id: 'quizGeneratorUITool',
+  description: 'Shows an interface for generating educational quizzes',
+  inputSchema: z.object({}),
+  outputSchema: z.object({
+    status: z.string().describe('Status of the tool execution')
+  }),
+  execute: async () => {
+    return {
+      status: 'Quiz generator interface ready'
+    }
+  }
+});
+
 // Tool for generating educational quizzes
 export const generateQuizTool = createTool({
   id: 'generateQuizTool',

@@ -11,14 +11,21 @@ import ReactMarkdown from "react-markdown";
 import { useAccount } from "wagmi";
 import {
   financeDashboardTool,
+  generateQuizTool,
   graspAcademyNFTTool,
   mintNftTool,
+  quizGeneratorUITool,
   sendNativeCoinTool,
   showDashboardTool,
   swapTool,
-  yuzuBuddiesMinterTool
+  yuzuBuddiesMinterTool,
 } from "../mastra/tools";
-import { GraspAcademyNFTTool, YuzuBuddiesMinterTool } from "@/components/ui-tools";
+import {
+  GraspAcademyNFTTool,
+  LeaderboardToolUI,
+  QuizGeneratorTool,
+  YuzuBuddiesMinterTool,
+} from "@/components/ui-tools";
 
 // Lazy load components
 const FinanceDashboardTool = lazy(() => import("@/components/ui-tools/FinanceDashboardTool"));
@@ -147,6 +154,22 @@ const MessagePartRenderer = memo(({ part, index }: { part: Part, index: number }
     return (
       <p key={index} className="text-muted-foreground italic">
         Loading Yuzu Buddies minter interface...
+      </p>
+    );
+  }
+
+  if (part.type === "tool-invocation" && part.toolInvocation?.toolName === quizGeneratorUITool.id) {
+    if (part.toolInvocation.state === "result") {
+      return (
+        <Suspense fallback={<p className="text-muted-foreground italic">Loading Quiz Generator interface...</p>}>
+          <QuizGeneratorTool key={index} />
+        </Suspense>
+      );
+    }
+
+    return (
+      <p key={index} className="text-muted-foreground italic">
+        Loading Quiz Generator interface...
       </p>
     );
   }
