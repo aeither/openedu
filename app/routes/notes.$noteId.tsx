@@ -20,7 +20,7 @@ function NoteDetailPage() {
   const trpc = useTRPC();
 
   // Fetch note data using the query hook from tRPC
-  const { data: note, isLoading, isError, error } = useQuery(
+  const { data: note, isLoading, isError, error, refetch } = useQuery(
     trpc.notes.getNoteById.queryOptions({ noteId })
   );
 
@@ -31,6 +31,9 @@ function NoteDetailPage() {
   const updateNoteMutation = useMutation(
     trpc.notes.updateNote.mutationOptions({
       onSuccess: () => {
+        // Refetch the note data to update the UI
+        refetch();
+        
         toast({
           title: "Note saved",
           description: "Your changes have been saved successfully.",
