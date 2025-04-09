@@ -112,7 +112,7 @@ function NoteDetailPage() {
       <div className="space-y-4 p-4">
         {/* Title section */}
         <div className="space-y-4">
-          <h1 className="text-2xl font-bold">{getTitle()}</h1>
+          <h1 className="text-2xl font-bold truncate">{getTitle()}</h1>
           <p className="text-sm text-muted-foreground">
             Updated: {new Date(note.updatedAt).toLocaleString()}
           </p>

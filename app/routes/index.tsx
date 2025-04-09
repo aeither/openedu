@@ -216,11 +216,11 @@ function Index() {
                           <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-xl mr-3">
                             {note.icon}
                           </div>
-                          <div>
-                            <h3 className="font-medium">{note.title}</h3>
-                            <p className="text-sm text-muted-foreground">{note.date}</p>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium truncate">{note.title}</h3>
+                            <p className="text-sm text-muted-foreground truncate">{note.preview}</p>
                           </div>
-                          <div className="ml-auto">
+                          <div className="ml-3 flex-shrink-0">
                             <span className="text-2xl">&gt;</span>
                           </div>
                         </div>
@@ -245,11 +245,11 @@ function Index() {
                             <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-xl mr-3">
                               {note.icon}
                             </div>
-                            <div>
-                              <h3 className="font-medium">{note.title}</h3>
-                              <p className="text-sm text-muted-foreground">{note.date}</p>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium truncate">{note.title}</h3>
+                              <p className="text-sm text-muted-foreground truncate">{note.preview}</p>
                             </div>
-                            <div className="ml-auto">
+                            <div className="ml-3 flex-shrink-0">
                               <span className="text-2xl">&gt;</span>
                             </div>
                           </div>
