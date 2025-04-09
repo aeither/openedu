@@ -14,8 +14,7 @@ export const notes = pgTable("notes", {
   userAddress: text("user_address")
     .notNull()
     .references(() => users.address, { onDelete: "cascade" }),
-  title: text("title").notNull(),
-  content: text("content"),
+  content: text("content").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

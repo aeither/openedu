@@ -175,9 +175,9 @@ export const yuzuBuddiesMinterTool = createTool({
 // Tool for generating educational quizzes
 export const generateQuizTool = createTool({
   id: 'generateQuizTool',
-  description: 'Generate educational quiz questions on a specified topic',
+  description: 'Generate educational quiz questions based on provided content',
   inputSchema: z.object({
-    topic: z.string().describe('The educational topic to generate quiz questions about'),
+    content: z.string().describe('The educational content to generate quiz questions from'),
     count: z.number().optional().default(4).describe('Number of questions to generate (default: 4)')
   }),
   outputSchema: z.object({
@@ -190,7 +190,7 @@ export const generateQuizTool = createTool({
   }),
   execute: async ({ context }) => {
     // Access input directly from context
-    const { topic, count = 4 } = context;
+    const { content, count = 4 } = context;
     
     const result = await generateObject({
       model: groq("llama-3.3-70b-versatile"),
@@ -202,13 +202,8 @@ export const generateQuizTool = createTool({
         },
         {
           role: "user",
-          content: [
-            {
-              type: "text",
-              text: `Create a multiple choice test based on this text:\n\n${topic}`,
-            },
-          ],
-        },
+          content: `Create ${count} multiple choice quiz questions based on the following content:\n\n${content}`
+        }
       ],
       output: 'array',
       schema: z.object({

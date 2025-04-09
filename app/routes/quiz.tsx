@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { useTRPC } from '@/trpc/react';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
@@ -30,7 +31,7 @@ export const Route = createFileRoute('/quiz')({
 
 function QuizComponent() {
   const trpc = useTRPC();
-  const [topic, setTopic] = useState('');
+  const [content, setContent] = useState('');
   const [count, setCount] = useState(4);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -53,7 +54,7 @@ function QuizComponent() {
 
   // Function to generate a quiz using tRPC
   const generateQuiz = async () => {
-    if (!topic) {
+    if (!content) {
       generateQuizMutation.reset();
       return;
     }
@@ -64,7 +65,7 @@ function QuizComponent() {
     setShowExplanation(false);
 
     generateQuizMutation.mutate({ 
-      topic, 
+      content, 
       count 
     });
   };
@@ -98,17 +99,18 @@ function QuizComponent() {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Generate New Quiz</CardTitle>
-          <CardDescription>Enter a topic to generate questions about</CardDescription>
+          <CardDescription>Enter educational content to generate questions from</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="topic">Topic</Label>
-              <Input
-                id="topic"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder="Enter a topic (e.g., Quantum Physics, Climate Change)"
+              <Label htmlFor="content">Content</Label>
+              <Textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Paste or enter educational content to generate questions from"
+                className="min-h-[150px]"
               />
             </div>
             
