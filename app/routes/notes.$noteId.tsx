@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { createFileRoute, ErrorComponent, Link } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import ReactMarkdown from 'react-markdown';
@@ -8,127 +7,177 @@ import { useTRPC } from '../trpc/react';
 import { Check, Edit, X } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import AppLayout from '@/components/layout/AppLayout';
+import { useQuery, useMutation } from '@tanstack/react-query';
 
 export const Route = createFileRoute('/notes/$noteId')({
-  loader: async ({ params: { noteId }, context }) => {
-    // In a real app, this would fetch from your API
-    // This is a mock implementation
-    await new Promise(resolve => setTimeout(resolve, 50)); // Simulate network delay
-    
-    return { 
-      note: {
-        id: noteId,
-        title: `Note ${noteId}`,
-        content: `# Introduction to Kiwinote\n\nThis is a sample note using Markdown.\n\n- Feature 1\n- Feature 2\n\n## Section 2\n\nSome more details here.\n\n\`\`\`javascript\nconsole.log("Hello, Markdown!");\n\`\`\``
-      } 
-    };
-  },
-  head: ({ loaderData }) => ({
-    meta: [{ title: loaderData.note.title }],
-  }),
-  errorComponent: ({ error }) => <ErrorComponent error={error} />,
   component: NoteDetailPage,
 });
 
 function NoteDetailPage() {
   const { noteId } = Route.useParams();
-  const { note } = Route.useLoaderData();
-  const [isEditing, setIsEditing] = useState(false);
-  const [content, setContent] = useState(note.content);
-  const [editedContent, setEditedContent] = useState(note.content);
+  const navigate = useNavigate();
   const { toast } = useToast();
   const trpc = useTRPC();
-  
-  // In a real app, you would have a mutation like this
-  // const updateNoteMutation = trpc.notes.update.useMutation();
+
+  // Fetch note data using the query hook from tRPC
+  const { data: note, isLoading, isError, error } = useQuery(
+    trpc.notes.getNoteById.queryOptions({ noteId })
+  );
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState(note?.content || '');
+
+  // Update note mutation
+  const updateNoteMutation = useMutation(
+    trpc.notes.updateNote.mutationOptions({
+      onSuccess: () => {
+        toast({
+          title: "Note saved",
+          description: "Your changes have been saved successfully.",
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Error",
+          description: `Failed to save note: ${error.message}`,
+          variant: "destructive",
+        });
+      }
+    })
+  );
 
   const handleEdit = () => {
-    setEditedContent(content);
+    setEditedContent(note?.content || '');
     setIsEditing(true);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditedContent(content);
+    setEditedContent(note?.content || '');
   };
 
   const handleSave = async () => {
-    // In a real app, you would call your mutation here
-    // await updateNoteMutation.mutateAsync({ 
-    //   id: noteId, 
-    //   content: editedContent 
-    // });
+    if (!note) return;
     
-    // For demo purposes, just simulate a save
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    // Optimistically update the content
-    setContent(editedContent);
-    setIsEditing(false);
-    
-    toast({
-      title: "Note saved",
-      description: "Your changes have been saved successfully.",
+    updateNoteMutation.mutate({ 
+      id: noteId, 
+      content: editedContent 
     });
+    
+    setIsEditing(false);
+  };
+
+  const handleCreateQuiz = () => {
+    if (!note) return;
+    // Navigate to quiz generator with prefilled content
+    navigate({ to: '/quiz', search: { content: note.content } });
+  };
+
+  if (isLoading) {
+    return (
+      <AppLayout title="Notes" showBackButton={true}>
+        <div className="space-y-4 p-4">
+          <div className="animate-pulse h-8 w-1/3 bg-muted rounded mb-4"></div>
+          <div className="animate-pulse h-10 w-full bg-muted rounded mb-4"></div>
+          <div className="animate-pulse h-64 w-full bg-muted rounded"></div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (isError || !note) {
+    return (
+      <AppLayout title="Notes" showBackButton={true}>
+        <div className="space-y-4 p-4">
+          <div className="border border-destructive rounded-md p-4 bg-destructive/5">
+            <h2 className="text-lg font-semibold text-destructive mb-2">Error Loading Note</h2>
+            <p>{error instanceof Error ? error.message : 'Could not find this note'}</p>
+            <Button onClick={() => navigate({ to: '/' })} className="mt-4">
+              Return to Notes
+            </Button>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // Extract title from content (first line)
+  const getTitle = () => {
+    const firstLine = note.content.split('\n')[0];
+    return firstLine.replace(/^#\s+/, '').trim() || 'Untitled Note';
   };
 
   return (
     <AppLayout title="Notes" showBackButton={true}>
-    <div className="space-y-4 p-4">
-      {/* Title section */}
-      <div className="space-y-4">
-        <h1 className="text-2xl font-bold">{note.title}</h1>
-        
-        {/* Action buttons */}
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm">Create Flashcard</Button>
-          <Button variant="outline" size="sm">Create Quiz</Button>
-          <Button variant="outline" size="sm">Chat</Button>
-          {!isEditing && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleEdit} 
-              aria-label="Edit note"
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
+      <div className="space-y-4 p-4">
+        {/* Title section */}
+        <div className="space-y-4">
+          <h1 className="text-2xl font-bold">{getTitle()}</h1>
+          <p className="text-sm text-muted-foreground">
+            Updated: {new Date(note.updatedAt).toLocaleString()}
+          </p>
+          
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm">Create Flashcard</Button>
+            <Button variant="outline" size="sm" onClick={handleCreateQuiz}>Create Quiz</Button>
+            <Button variant="outline" size="sm">Chat</Button>
+            {!isEditing && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleEdit} 
+                aria-label="Edit note"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div className="border rounded-md p-4 min-h-[300px]">
+          {isEditing ? (
+            <div className="space-y-2">
+              <Textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                placeholder="Enter your note in Markdown..."
+                className="min-h-[300px] font-mono"
+              />
+              <div className="flex justify-end gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleCancel}
+                  disabled={updateNoteMutation.isPending}
+                >
+                  <X className="h-4 w-4 mr-1" /> Cancel
+                </Button>
+                <Button 
+                  size="sm" 
+                  onClick={handleSave}
+                  disabled={updateNoteMutation.isPending}
+                >
+                  {updateNoteMutation.isPending ? (
+                    <span className="flex items-center">
+                      <span className="animate-spin h-4 w-4 mr-2 border-2 border-current border-t-transparent rounded-full"></span>
+                      Saving...
+                    </span>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4 mr-1" /> Save
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="markdown-content">
+              <ReactMarkdown>{note.content}</ReactMarkdown>
+            </div>
           )}
         </div>
       </div>
-
-      <div className="border rounded-md p-4 min-h-[300px]">
-        {isEditing ? (
-          <div className="space-y-2">
-            <Textarea
-              value={editedContent}
-              onChange={(e) => setEditedContent(e.target.value)}
-              placeholder="Enter your note in Markdown..."
-              className="min-h-[300px] font-mono"
-            />
-            <div className="flex justify-end gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleCancel}
-              >
-                <X className="h-4 w-4 mr-1" /> Cancel
-              </Button>
-              <Button 
-                size="sm" 
-                onClick={handleSave}
-              >
-                <Check className="h-4 w-4 mr-1" /> Save
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="markdown-content">
-            <ReactMarkdown>{content}</ReactMarkdown>
-          </div>
-        )}
-      </div>
-    </div>
-            </AppLayout>
+    </AppLayout>
   );
 }
