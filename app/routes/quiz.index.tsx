@@ -25,7 +25,7 @@ interface QuizData {
   noteId?: string;
 }
 
-export const Route = createFileRoute('/quiz')({
+export const Route = createFileRoute('/quiz/')({
   head: () => ({
     meta: [{ title: 'Quiz Generator' }],
   }),

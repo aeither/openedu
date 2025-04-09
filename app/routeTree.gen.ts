@@ -14,7 +14,6 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as TermsOfServiceImport } from './routes/terms-of-service'
 import { Route as SettingsImport } from './routes/settings'
 import { Route as RedirectImport } from './routes/redirect'
-import { Route as QuizImport } from './routes/quiz'
 import { Route as PrivacyPolicyImport } from './routes/privacy-policy'
 import { Route as PostsImport } from './routes/posts'
 import { Route as PortfolioImport } from './routes/portfolio'
@@ -25,6 +24,7 @@ import { Route as ChatImport } from './routes/chat'
 import { Route as CdpImport } from './routes/cdp'
 import { Route as BalanceImport } from './routes/balance'
 import { Route as IndexImport } from './routes/index'
+import { Route as QuizIndexImport } from './routes/quiz.index'
 import { Route as PostsIndexImport } from './routes/posts.index'
 import { Route as QuizQuizIdImport } from './routes/quiz.$quizId'
 import { Route as PostsPostIdImport } from './routes/posts.$postId'
@@ -50,12 +50,6 @@ const SettingsRoute = SettingsImport.update({
 const RedirectRoute = RedirectImport.update({
   id: '/redirect',
   path: '/redirect',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const QuizRoute = QuizImport.update({
-  id: '/quiz',
-  path: '/quiz',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -119,6 +113,12 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const QuizIndexRoute = QuizIndexImport.update({
+  id: '/quiz/',
+  path: '/quiz/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const PostsIndexRoute = PostsIndexImport.update({
   id: '/',
   path: '/',
@@ -126,9 +126,9 @@ const PostsIndexRoute = PostsIndexImport.update({
 } as any)
 
 const QuizQuizIdRoute = QuizQuizIdImport.update({
-  id: '/$quizId',
-  path: '/$quizId',
-  getParentRoute: () => QuizRoute,
+  id: '/quiz/$quizId',
+  path: '/quiz/$quizId',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const PostsPostIdRoute = PostsPostIdImport.update({
@@ -235,13 +235,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyPolicyImport
       parentRoute: typeof rootRoute
     }
-    '/quiz': {
-      id: '/quiz'
-      path: '/quiz'
-      fullPath: '/quiz'
-      preLoaderRoute: typeof QuizImport
-      parentRoute: typeof rootRoute
-    }
     '/redirect': {
       id: '/redirect'
       path: '/redirect'
@@ -293,10 +286,10 @@ declare module '@tanstack/react-router' {
     }
     '/quiz/$quizId': {
       id: '/quiz/$quizId'
-      path: '/$quizId'
+      path: '/quiz/$quizId'
       fullPath: '/quiz/$quizId'
       preLoaderRoute: typeof QuizQuizIdImport
-      parentRoute: typeof QuizImport
+      parentRoute: typeof rootRoute
     }
     '/posts/': {
       id: '/posts/'
@@ -304,6 +297,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/posts/'
       preLoaderRoute: typeof PostsIndexImport
       parentRoute: typeof PostsImport
+    }
+    '/quiz/': {
+      id: '/quiz/'
+      path: '/quiz'
+      fullPath: '/quiz'
+      preLoaderRoute: typeof QuizIndexImport
+      parentRoute: typeof rootRoute
     }
     '/posts_/$postId/deep': {
       id: '/posts_/$postId/deep'
@@ -329,16 +329,6 @@ const PostsRouteChildren: PostsRouteChildren = {
 
 const PostsRouteWithChildren = PostsRoute._addFileChildren(PostsRouteChildren)
 
-interface QuizRouteChildren {
-  QuizQuizIdRoute: typeof QuizQuizIdRoute
-}
-
-const QuizRouteChildren: QuizRouteChildren = {
-  QuizQuizIdRoute: QuizQuizIdRoute,
-}
-
-const QuizRouteWithChildren = QuizRoute._addFileChildren(QuizRouteChildren)
-
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/balance': typeof BalanceRoute
@@ -350,7 +340,6 @@ export interface FileRoutesByFullPath {
   '/portfolio': typeof PortfolioRoute
   '/posts': typeof PostsRouteWithChildren
   '/privacy-policy': typeof PrivacyPolicyRoute
-  '/quiz': typeof QuizRouteWithChildren
   '/redirect': typeof RedirectRoute
   '/settings': typeof SettingsRoute
   '/terms-of-service': typeof TermsOfServiceRoute
@@ -360,6 +349,7 @@ export interface FileRoutesByFullPath {
   '/posts/$postId': typeof PostsPostIdRoute
   '/quiz/$quizId': typeof QuizQuizIdRoute
   '/posts/': typeof PostsIndexRoute
+  '/quiz': typeof QuizIndexRoute
   '/posts/$postId/deep': typeof PostsPostIdDeepRoute
 }
 
@@ -373,7 +363,6 @@ export interface FileRoutesByTo {
   '/playground': typeof PlaygroundRoute
   '/portfolio': typeof PortfolioRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
-  '/quiz': typeof QuizRouteWithChildren
   '/redirect': typeof RedirectRoute
   '/settings': typeof SettingsRoute
   '/terms-of-service': typeof TermsOfServiceRoute
@@ -383,6 +372,7 @@ export interface FileRoutesByTo {
   '/posts/$postId': typeof PostsPostIdRoute
   '/quiz/$quizId': typeof QuizQuizIdRoute
   '/posts': typeof PostsIndexRoute
+  '/quiz': typeof QuizIndexRoute
   '/posts/$postId/deep': typeof PostsPostIdDeepRoute
 }
 
@@ -398,7 +388,6 @@ export interface FileRoutesById {
   '/portfolio': typeof PortfolioRoute
   '/posts': typeof PostsRouteWithChildren
   '/privacy-policy': typeof PrivacyPolicyRoute
-  '/quiz': typeof QuizRouteWithChildren
   '/redirect': typeof RedirectRoute
   '/settings': typeof SettingsRoute
   '/terms-of-service': typeof TermsOfServiceRoute
@@ -408,6 +397,7 @@ export interface FileRoutesById {
   '/posts/$postId': typeof PostsPostIdRoute
   '/quiz/$quizId': typeof QuizQuizIdRoute
   '/posts/': typeof PostsIndexRoute
+  '/quiz/': typeof QuizIndexRoute
   '/posts_/$postId/deep': typeof PostsPostIdDeepRoute
 }
 
@@ -424,7 +414,6 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/posts'
     | '/privacy-policy'
-    | '/quiz'
     | '/redirect'
     | '/settings'
     | '/terms-of-service'
@@ -434,6 +423,7 @@ export interface FileRouteTypes {
     | '/posts/$postId'
     | '/quiz/$quizId'
     | '/posts/'
+    | '/quiz'
     | '/posts/$postId/deep'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -446,7 +436,6 @@ export interface FileRouteTypes {
     | '/playground'
     | '/portfolio'
     | '/privacy-policy'
-    | '/quiz'
     | '/redirect'
     | '/settings'
     | '/terms-of-service'
@@ -456,6 +445,7 @@ export interface FileRouteTypes {
     | '/posts/$postId'
     | '/quiz/$quizId'
     | '/posts'
+    | '/quiz'
     | '/posts/$postId/deep'
   id:
     | '__root__'
@@ -469,7 +459,6 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/posts'
     | '/privacy-policy'
-    | '/quiz'
     | '/redirect'
     | '/settings'
     | '/terms-of-service'
@@ -479,6 +468,7 @@ export interface FileRouteTypes {
     | '/posts/$postId'
     | '/quiz/$quizId'
     | '/posts/'
+    | '/quiz/'
     | '/posts_/$postId/deep'
   fileRoutesById: FileRoutesById
 }
@@ -494,13 +484,14 @@ export interface RootRouteChildren {
   PortfolioRoute: typeof PortfolioRoute
   PostsRoute: typeof PostsRouteWithChildren
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
-  QuizRoute: typeof QuizRouteWithChildren
   RedirectRoute: typeof RedirectRoute
   SettingsRoute: typeof SettingsRoute
   TermsOfServiceRoute: typeof TermsOfServiceRoute
   CourseIdRoute: typeof CourseIdRoute
   MerchantIdRoute: typeof MerchantIdRoute
   NotesNoteIdRoute: typeof NotesNoteIdRoute
+  QuizQuizIdRoute: typeof QuizQuizIdRoute
+  QuizIndexRoute: typeof QuizIndexRoute
   PostsPostIdDeepRoute: typeof PostsPostIdDeepRoute
 }
 
@@ -515,13 +506,14 @@ const rootRouteChildren: RootRouteChildren = {
   PortfolioRoute: PortfolioRoute,
   PostsRoute: PostsRouteWithChildren,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
-  QuizRoute: QuizRouteWithChildren,
   RedirectRoute: RedirectRoute,
   SettingsRoute: SettingsRoute,
   TermsOfServiceRoute: TermsOfServiceRoute,
   CourseIdRoute: CourseIdRoute,
   MerchantIdRoute: MerchantIdRoute,
   NotesNoteIdRoute: NotesNoteIdRoute,
+  QuizQuizIdRoute: QuizQuizIdRoute,
+  QuizIndexRoute: QuizIndexRoute,
   PostsPostIdDeepRoute: PostsPostIdDeepRoute,
 }
 
@@ -545,13 +537,14 @@ export const routeTree = rootRoute
         "/portfolio",
         "/posts",
         "/privacy-policy",
-        "/quiz",
         "/redirect",
         "/settings",
         "/terms-of-service",
         "/course/$id",
         "/merchant/$id",
         "/notes/$noteId",
+        "/quiz/$quizId",
+        "/quiz/",
         "/posts_/$postId/deep"
       ]
     },
@@ -589,12 +582,6 @@ export const routeTree = rootRoute
     "/privacy-policy": {
       "filePath": "privacy-policy.tsx"
     },
-    "/quiz": {
-      "filePath": "quiz.tsx",
-      "children": [
-        "/quiz/$quizId"
-      ]
-    },
     "/redirect": {
       "filePath": "redirect.tsx"
     },
@@ -618,12 +605,14 @@ export const routeTree = rootRoute
       "parent": "/posts"
     },
     "/quiz/$quizId": {
-      "filePath": "quiz.$quizId.tsx",
-      "parent": "/quiz"
+      "filePath": "quiz.$quizId.tsx"
     },
     "/posts/": {
       "filePath": "posts.index.tsx",
       "parent": "/posts"
+    },
+    "/quiz/": {
+      "filePath": "quiz.index.tsx"
     },
     "/posts_/$postId/deep": {
       "filePath": "posts_.$postId.deep.tsx"
