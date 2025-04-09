@@ -46,7 +46,6 @@ function QuizComponent() {
   const generateQuizMutation = useMutation(
     trpc.quiz.generateQuiz.mutationOptions({
       onSuccess: (data: QuizData) => {
-        console.log("🚀 ~ QuizComponent ~ data:", data)
         setQuizData(data);
         setCurrentQuestion(0);
         setSelectedAnswer(null);
