@@ -111,32 +111,48 @@ export const showDashboardTool = createTool({
 // Tool for showing the finance dashboard interface with balances
 export const financeDashboardTool = createTool({
   id: 'financeDashboardTool',
-  description: 'Show the user finance dashboard with token balance, native balance, and invested amount',
+  description: 'Show the finance dashboard with balances and transactions',
   inputSchema: z.object({}),
   outputSchema: z.object({
-    status: z.string().describe('Show the finance dashboard interface and complete')
+    status: z.string().describe('Status of the tool execution')
   }),
-  execute: async () => {
-    // This tool is UI-only, so we just return a success status
+  async execute() {
     return {
-      status: 'tool called successfully'
-    };
+      status: 'Finance dashboard displayed',
+      ui: 'ShowDashboardTool'
+    }
   }
 });
 
 // Tool for swapping tokens
 export const swapTool = createTool({
   id: 'swapTool',
-  description: 'Swap WEDU tokens for USDC using Sailfish DEX',
+  description: 'Swap tokens using built-in DEX function',
   inputSchema: z.object({}),
   outputSchema: z.object({
-    status: z.string().describe('Show the token swap interface and complete')
+    status: z.string().describe('Status of the tool execution')
   }),
-  execute: async () => {
-    // This tool is UI-only, so we just return a success status
+  async execute() {
     return {
-      status: 'token swap tool called successfully'
-    };
+      status: 'Swap interface displayed',
+      ui: 'SwapTool'
+    }
+  }
+});
+
+// Tool for minting Grasp Academy NFT
+export const graspAcademyNFTTool = createTool({
+  id: 'graspAcademyNFTTool',
+  description: 'Mint an educational NFT from Grasp Academy which represents proof of learning achievement',
+  inputSchema: z.object({}),
+  outputSchema: z.object({
+    status: z.string().describe('Status of the tool execution')
+  }),
+  async execute() {
+    return {
+      status: 'Grasp Academy NFT minting interface displayed',
+      ui: 'GraspAcademyNFTTool'
+    }
   }
 });
 

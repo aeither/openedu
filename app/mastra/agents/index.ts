@@ -8,7 +8,8 @@ import {
   showDashboardTool,
   financeDashboardTool,
   swapTool,
-  generateQuizTool
+  generateQuizTool,
+  graspAcademyNFTTool
 } from '../tools';
 
 const defaultAgent = new Agent({
@@ -42,7 +43,8 @@ const uiToolAgent = new Agent({
   tools: {
     // showDashboardTool,
     financeDashboardTool,
-    swapTool
+    swapTool,
+    graspAcademyNFTTool
     //
   },
 });

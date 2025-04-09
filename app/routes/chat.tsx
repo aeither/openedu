@@ -11,11 +11,13 @@ import ReactMarkdown from "react-markdown";
 import { useAccount } from "wagmi";
 import {
   financeDashboardTool,
+  graspAcademyNFTTool,
   mintNftTool,
   sendNativeCoinTool,
   showDashboardTool,
   swapTool
 } from "../mastra/tools";
+import { GraspAcademyNFTTool } from "@/components/ui-tools";
 
 // Lazy load components
 const FinanceDashboardTool = lazy(() => import("@/components/ui-tools/FinanceDashboardTool"));
@@ -112,6 +114,22 @@ const MessagePartRenderer = memo(({ part, index }: { part: Part, index: number }
     return (
       <p key={index} className="text-muted-foreground italic">
         Loading token swap interface...
+      </p>
+    );
+  }
+
+  if (part.type === "tool-invocation" && part.toolInvocation?.toolName === graspAcademyNFTTool.id) {
+    if (part.toolInvocation.state === "result") {
+      return (
+        <Suspense fallback={<p className="text-muted-foreground italic">Loading Grasp Academy NFT interface...</p>}>
+          <GraspAcademyNFTTool key={index} />
+        </Suspense>
+      );
+    }
+
+    return (
+      <p key={index} className="text-muted-foreground italic">
+        Loading Grasp Academy NFT interface...
       </p>
     );
   }

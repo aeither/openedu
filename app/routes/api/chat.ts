@@ -21,11 +21,6 @@ export const APIRoute = createAPIFileRoute('/api/chat')({
             system: `You are a planning assistant that determines which specialized agent would be most helpful for a user's query.
     
     Based on the user's request, you must decide which of the following predefined agent types would be most appropriate:
-    - "crypto": For crypto and blockchain related requests such as:
-      * Minting NFTs
-      * Sending CRO tokens
-      * Checking wallet balances
-      * Getting cryptocurrency prices
     - "default": For all other requests
     - "show": For requests that require showing UI components
     
@@ -34,11 +29,11 @@ export const APIRoute = createAPIFileRoute('/api/chat')({
         });
         console.log("Agent: ", object)
 
-        if (object === 'crypto') {
-            const myAgent = mastra.getAgent('cryptoToolsAgent');
-            const stream = await myAgent.stream(lastUserMessage);
-            return stream.toDataStreamResponse({ sendReasoning: false });
-        }
+        // if (object === 'crypto') {
+        //     const myAgent = mastra.getAgent('cryptoToolsAgent');
+        //     const stream = await myAgent.stream(lastUserMessage);
+        //     return stream.toDataStreamResponse({ sendReasoning: false });
+        // }
         if (object === 'show') {
             const myAgent = mastra.getAgent('uiToolAgent');
             // Only send the last message to avoid loops
