@@ -6,10 +6,11 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useTRPC } from '@/trpc/react';
 import { useMutation } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../lib/utils';
+import { useAccount } from "wagmi";
 
 interface QuizQuestion {
   question: string;
@@ -20,6 +21,8 @@ interface QuizQuestion {
 
 interface QuizData {
   questions: QuizQuestion[];
+  quizId?: string;
+  noteId?: string;
 }
 
 export const Route = createFileRoute('/quiz')({
@@ -31,6 +34,8 @@ export const Route = createFileRoute('/quiz')({
 
 function QuizComponent() {
   const trpc = useTRPC();
+  const navigate = useNavigate();
+  const { address, isConnected } = useAccount();
   const [content, setContent] = useState('');
   const [count, setCount] = useState(4);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
@@ -41,10 +46,17 @@ function QuizComponent() {
   const generateQuizMutation = useMutation(
     trpc.quiz.generateQuiz.mutationOptions({
       onSuccess: (data: QuizData) => {
+        console.log("🚀 ~ QuizComponent ~ data:", data)
         setQuizData(data);
         setCurrentQuestion(0);
         setSelectedAnswer(null);
         setShowExplanation(false);
+        
+        // Navigate to the quiz page if we have a quizId
+        if (data.quizId) {
+          // Use string concatenation for the path to avoid type errors
+          navigate({ to: '/quiz/' + data.quizId, params: { quizId: data.quizId } });
+        }
       },
       onError: (error: any) => {
         console.error('Error generating quiz:', error);
@@ -54,7 +66,7 @@ function QuizComponent() {
 
   // Function to generate a quiz using tRPC
   const generateQuiz = async () => {
-    if (!content) {
+    if (!content || !address) {
       generateQuizMutation.reset();
       return;
     }
@@ -66,7 +78,8 @@ function QuizComponent() {
 
     generateQuizMutation.mutate({ 
       content, 
-      count 
+      count,
+      userAddress: address
     });
   };
 
@@ -128,7 +141,7 @@ function QuizComponent() {
             
             <Button 
               onClick={generateQuiz} 
-              disabled={generateQuizMutation.isPending}
+              disabled={generateQuizMutation.isPending || !isConnected}
               className="w-full"
             >
               {generateQuizMutation.isPending ? (
@@ -136,6 +149,8 @@ function QuizComponent() {
                   <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Generating Quiz...
                 </>
+              ) : !isConnected ? (
+                'Connect Wallet to Generate Quiz'
               ) : (
                 'Generate Quiz'
               )}

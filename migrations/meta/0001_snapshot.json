@@ -1,6 +1,6 @@
 {
-  "id": "ae1d5820-5c43-4274-b948-6eb3fac3d289",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "3737a66d-198c-49b9-bd17-65da63d555ca",
+  "prevId": "ae1d5820-5c43-4274-b948-6eb3fac3d289",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -159,12 +159,6 @@
         "note_id": {
           "name": "note_id",
           "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
           "primaryKey": false,
           "notNull": true
         },

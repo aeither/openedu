@@ -1,4 +1,5 @@
 import { integer, jsonb, numeric, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 // Define the users table
 export const users = pgTable("users", {
@@ -19,17 +20,33 @@ export const notes = pgTable("notes", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Define relations for the notes table
+export const notesRelations = relations(notes, ({ one, many }) => ({
+  user: one(users, {
+    fields: [notes.userAddress],
+    references: [users.address],
+  }),
+  quizzes: many(quizzes),
+}));
+
 // Define the quizzes table - now with JSON data
 export const quizzes = pgTable("quizzes", {
   id: uuid("id").primaryKey(),
   noteId: uuid("note_id")
     .notNull()
     .references(() => notes.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
   quizData: jsonb("quiz_data").notNull(), // Using jsonb for better JSON storage and querying
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+// Define relations for the quizzes table
+export const quizzesRelations = relations(quizzes, ({ one }) => ({
+  note: one(notes, {
+    fields: [quizzes.noteId],
+    references: [notes.id],
+  }),
+}));
 
 // Define the flashcards table - now linked to notes
 export const flashcards = pgTable("flashcards", {
