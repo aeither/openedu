@@ -35,24 +35,24 @@ function Index() {
     ...todayNotes,
     {
       id: '2',
-      title: 'Shopping List',
+      title: 'Blockchain Fundamentals',
       date: '06 Apr 2025',
-      icon: '🛒',
-      preview: 'Milk, eggs, bread...',
+      icon: '🔗',
+      preview: 'Key concepts: distributed ledger, consensus mechanisms, smart contracts...',
     },
     {
       id: '3',
-      title: 'Meeting Notes',
+      title: 'Machine Learning Algorithms',
       date: '05 Apr 2025',
-      icon: '📝',
-      preview: 'Discussed project timeline and deliverables...',
+      icon: '🤖',
+      preview: 'Supervised vs unsupervised learning, neural networks, decision trees...',
     },
     {
       id: '4',
-      title: 'Ideas for Project',
+      title: 'Quantum Computing Basics',
       date: '03 Apr 2025',
-      icon: '💡',
-      preview: 'Feature suggestions and improvements...',
+      icon: '⚛️',
+      preview: 'Qubits, superposition, quantum entanglement, quantum gates...',
     },
   ];
 

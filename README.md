@@ -5,20 +5,21 @@
 
 # OpenEdu
 
-OpenEdu is a modern DeFi application that empowers users to manage their crypto assets, make purchases from merchants, and automatically invest spare change in various DeFi protocols. The platform supports multiple blockchains and provides a seamless, user-friendly experience for crypto banking and investments.
+OpenEdu is the unified interface to access the EDU Chain ecosystem. It seamlessly integrates with leading EDU Chain applications including Sailfish Finance, Grasp Academy, ED3, and DailyWiser, providing a centralized hub for all educational needs within the ecosystem.
 
 ## 🏁 DEMO
 
-https://willowy-cuchufli-496051.netlify.app/
+DEMO_LINK
 
 ## 🌟 Key Features
 
-- **Multi-chain Support**: Compatible with Rootstock, Flow Testnet, and Celo Alfajores.
-- **Portfolio Management**: View your complete portfolio with asset allocations and performance metrics.
-- **DeFi Integration**: Automatically invest in multiple DeFi protocols.
-- **Merchant Payments**: Pay participating merchants and round up purchases to invest the spare change.
-- **Learning Resources**: Educational content to help users understand DeFi concepts.
-- **Personalized Risk Levels**: Choose your investment strategy with adjustable risk profiles.
+- **Integrated Platform**: One centralized interface to access various educational applications in the EDU Chain ecosystem.
+- **Natural Language Interface**: Dynamic interface that invokes the app you need using natural language commands.
+- **Extensive Knowledge Base**: Comprehensive EDU Chain knowledge repository.
+- **Mainnet Ready**: Fully compatible with production blockchain environment.
+- **Exclusive Content**: Token-gated campaigns with content accessible only to early adopters.
+- **Educational Tools**: Notes, flashcards, and AI-powered quiz generation for effective learning.
+- **Growing Ecosystem**: Upcoming collaborations to integrate more protocols with co-marketing initiatives.
 
 ## 🏗️ Architecture
 
@@ -33,35 +34,35 @@ OpenEdu follows a modern frontend architecture with blockchain integration:
 ### Blockchain Integration
 - **Wagmi**: React hooks for Ethereum
 - **Viem**: TypeScript interface for Ethereum
-- **Multi-chain Support**: Configurable contract addresses for different blockchains
+- **EDU Chain**: Native integration with the educational blockchain ecosystem
 
-### Smart Contracts
-- **Token Contract**: ERC20 token implementation
-- **Money Market Contract**: DeFi protocol integration
-- **NFT Contract**: Non-fungible token implementation
+### Education Infrastructure
+- **Notes System**: Structured note-taking with database persistence
+- **Flashcards**: Spaced repetition learning tools
+- **Quiz Generation**: AI-powered quiz creation based on topics
+- **Integration Layer**: Unified API to connect with partner applications
 
 ## 🚶‍♂️ User Flow
 
 1. **Onboarding**
-   - Connect wallet to the application
-   - Choose risk level for investments
+   - Connect wallet to access the EDU Chain ecosystem
+   - Access personalized educational content
 
-2. **Portfolio Management**
-   - View total portfolio value
-   - See allocation across different protocols
-   - Track transaction history
-   - Adjust risk level preferences
+2. **Learning Management**
+   - Create and organize educational notes
+   - Generate flashcards for effective memorization
+   - Create AI-powered quizzes on any topic
+   - Track learning progress across different subjects
 
-3. **Merchant Interaction**
-   - Browse merchants and products
-   - Add products to cart
-   - Checkout with crypto
-   - Automatically round up and invest spare change
+3. **Ecosystem Navigation**
+   - Seamlessly switch between integrated applications
+   - Use natural language to invoke specific tools and features
+   - Access token-gated content for early adopters
 
-4. **Learning & Earning**
-   - Access educational resources about DeFi
-   - Complete learning modules
-   - Earn rewards for educational achievements
+4. **Knowledge Expansion**
+   - Access comprehensive EDU Chain knowledge base
+   - Utilize AI tools to enhance learning experience
+   - Engage with community learning resources
 
 ## 💻 Technology Stack
 
@@ -69,41 +70,47 @@ OpenEdu follows a modern frontend architecture with blockchain integration:
   - React
   - TanStack Router
   - Tailwind CSS
-  - Recharts (for data visualization)
   - Shadcn UI Components
+  - Recharts (for data visualization)
 
 - **Blockchain**:
   - Wagmi (React hooks for Ethereum)
   - Viem (TypeScript interface for Ethereum)
-  - Multiple Chain Support (Rootstock, Flow, Celo)
+  - EDU Chain integration
 
 - **Development Tools**:
   - TypeScript
   - Vinxi (Build & Dev Server)
   - Biome (Linting)
-  - Drizzle ORM
+  - Drizzle ORM with PostgreSQL
   - Playwright (Testing)
 
 - **APIs & Integrations**:
   - Wallet Connect
   - TRPC
-  - AI integrations (via AI SDK)
+  - AI integrations via AI SDK (Groq, Anthropic, etc.)
+  - Partner application APIs (Sailfish Finance, Grasp Academy, etc.)
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js (v18 or higher)
 - pnpm
+- PostgreSQL
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/aeither/openedu.git
+git clone https://github.com/yourusername/openedu.git
 cd openedu
 
 # Install dependencies
 pnpm install
+
+# Set up your environment variables
+cp .env.example .env
+# Edit .env with your database and API credentials
 
 # Start the development server
 pnpm dev
@@ -123,11 +130,12 @@ pnpm start
 
 ## 📱 Key Pages and Components
 
-- **Portfolio**: Main dashboard showing your assets and allocations
-- **Merchants**: Browse and purchase from partner merchants
-- **Earn**: Educational content and earning opportunities
-- **Balance**: View and manage your token balances
-- **Chat**: Get help and insights about your account
+- **Home**: Dashboard showing your learning journey and recent activities
+- **Notes**: Create and manage your educational notes
+- **Quiz**: Generate quizzes on any topic using AI
+- **Flashcards**: Create and study flashcards with spaced repetition
+- **Balance**: View and manage your token balances in the EDU Chain ecosystem
+- **Chat**: Interact with AI assistants for learning support
 
 <div align="center">
     <img src="https://github.com/user-attachments/assets/fcd01c05-eb88-4baa-b131-e1f990b76885" alt="Logo" width="600">
