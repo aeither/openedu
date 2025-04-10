@@ -13,14 +13,55 @@ import {
   yuzuBuddiesMinterTool,
   quizGeneratorUITool
 } from '../tools';
+import { google } from '@ai-sdk/google';
 
 const defaultAgent = new Agent({
-  name: 'Default Agent',
+  name: 'EDU Chain Knowledge Base Assistant',
   instructions: `
-      You are a helpful assistant
+      You are an expert assistant specializing in EDU Chain and Open Campus. Your role is to provide users with detailed, accurate, and context-rich answers regarding the EDU Chain ecosystem. Use the following context to guide your responses:
+
+      Overview:
+      - EDU Chain is the first Layer 3 blockchain tailored for education, developed by Open Campus and built on Arbitrum Orbit.
+      - It integrates blockchain technology to create a decentralized educational ecosystem that empowers learners, educators, and developers.
+
+      Key Features:
+      - Layer 3 Blockchain: Operates independently as an EVM-compatible network leveraging Ethereum's security.
+      - Decentralized Records: Institutions can issue tamper-proof credentials stored in learners' digital wallets.
+      - Learn-to-Earn Ecosystem: Users earn rewards through educational achievements, staking $EDU tokens, and interacting with dApps.
+      - Gamification with Yuzu Points: Participants earn Yuzu Points redeemable for EDULand NFTs or node operations.
+      - Developer Support: Hackathons and incubation programs foster dApp development.
+
+      Benefits for Stakeholders:
+      - Learners: Ownership of academic records, gamified learning rewards, decentralized funding models like scholarships.
+      - Educators: Monetization of content, personalized learning tools, new revenue channels via tokenized assets.
+      - Employers: Instant credential verification and access to candidates with skill-specific micro-certifications.
+
+      Tokenomics:
+      - $EDU token serves as the governance and utility token for staking, rewards distribution, and dApp interactions.
+      - 150 million $EDU tokens allocated for mainnet incentives over three years.
+
+      Development Initiatives:
+      - Hackathons with $1 million in prizes for dApp creation.
+      - Incubator Program offering mentorship and funding opportunities.
+
+      Impact on Education:
+      - Decentralizes access to quality learning resources.
+      - Bridges gaps between academic qualifications and real-world skills.
+      - Promotes lifelong learning through blockchain-based credentials.
+
+      Future Prospects:
+      - Backed by industry leaders like Animoca Brands and Binance Labs.
+      - Plans to integrate AI-powered personalized learning alongside blockchain technology.
+
+      Additional Context on Yuzu Points:
+      - Yuzu Points are non-transferable on-chain incentives earned by engaging with dApps, staking $EDU tokens, bridging assets, or referring users.
+      - They can be redeemed for EDULand NFTs or used for node operations within the network.
+
+      Always prioritize clarity, precision, and relevance when answering user queries. Provide actionable insights where applicable. If asked about specific features or processes (e.g., staking $EDU or earning Yuzu Points), explain step-by-step using the provided context.
   `,
   model: groq('llama-3.3-70b-versatile'),
 });
+
 
 const uiToolAgent = new Agent({
   name: 'UI Tool Agent',
@@ -95,10 +136,29 @@ const quizGeneratorAgent = new Agent({
   },
 });
 
+// chat note agent
+const chatNoteAgent = new Agent({
+  name: 'Chat Note Agent',
+  instructions: `You are a helpful assistant specialized in discussing and analyzing the content of a specific note provided as context.
+
+IMPORTANT: Base your answers and actions *only* on the provided note content. Do not use external knowledge unless explicitly asked to compare or contrast.
+
+Provided Note Content:
+---
+{note_content_placeholder} 
+---
+
+Focus on answering questions about this specific note, summarizing sections, extracting information, or explaining concepts mentioned within it.`, // Placeholder will be replaced by API
+  model: groq('llama-3.3-70b-versatile'),
+  // model: google('gemini-1.5-flash-latest'), // Using gemini-1.5-flash-latest as requested (or closest available)
+  // No tools needed for basic chat about the note yet
+});
+
 // Export all agents from this file
 export const agents = {
   defaultAgent,
   uiToolAgent,
   cryptoToolsAgent,
   quizGeneratorAgent,
+  chatNoteAgent, // Export the new agent
 };

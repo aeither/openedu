@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import ReactMarkdown from 'react-markdown';
@@ -168,7 +168,9 @@ function NoteDetailPage() {
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm">Create Flashcard</Button>
             <Button variant="outline" size="sm" onClick={handleCreateQuiz}>Create Quiz</Button>
-            <Button variant="outline" size="sm">Chat</Button>
+            <Link to="/chat/$noteId" params={{ noteId }}>
+              <Button variant="outline" size="sm">Chat</Button>
+            </Link>
             {!isEditing && (
               <>
                 <Button 

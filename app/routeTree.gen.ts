@@ -20,18 +20,19 @@ import { Route as PortfolioImport } from './routes/portfolio'
 import { Route as PlaygroundImport } from './routes/playground'
 import { Route as LearnImport } from './routes/learn'
 import { Route as EarnImport } from './routes/earn'
-import { Route as ChatImport } from './routes/chat'
 import { Route as CdpImport } from './routes/cdp'
 import { Route as BalanceImport } from './routes/balance'
 import { Route as IndexImport } from './routes/index'
 import { Route as QuizIndexImport } from './routes/quiz.index'
 import { Route as PostsIndexImport } from './routes/posts.index'
 import { Route as NotesIndexImport } from './routes/notes.index'
+import { Route as ChatIndexImport } from './routes/chat.index'
 import { Route as QuizQuizIdImport } from './routes/quiz.$quizId'
 import { Route as PostsPostIdImport } from './routes/posts.$postId'
 import { Route as NotesNoteIdImport } from './routes/notes.$noteId'
 import { Route as MerchantIdImport } from './routes/merchant.$id'
 import { Route as CourseIdImport } from './routes/course.$id'
+import { Route as ChatNoteIdImport } from './routes/chat.$noteId'
 import { Route as PostsPostIdDeepImport } from './routes/posts_.$postId.deep'
 
 // Create/Update Routes
@@ -90,12 +91,6 @@ const EarnRoute = EarnImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const ChatRoute = ChatImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const CdpRoute = CdpImport.update({
   id: '/cdp',
   path: '/cdp',
@@ -132,6 +127,12 @@ const NotesIndexRoute = NotesIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ChatIndexRoute = ChatIndexImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const QuizQuizIdRoute = QuizQuizIdImport.update({
   id: '/quiz/$quizId',
   path: '/quiz/$quizId',
@@ -159,6 +160,12 @@ const MerchantIdRoute = MerchantIdImport.update({
 const CourseIdRoute = CourseIdImport.update({
   id: '/course/$id',
   path: '/course/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ChatNoteIdRoute = ChatNoteIdImport.update({
+  id: '/chat/$noteId',
+  path: '/chat/$noteId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -191,13 +198,6 @@ declare module '@tanstack/react-router' {
       path: '/cdp'
       fullPath: '/cdp'
       preLoaderRoute: typeof CdpImport
-      parentRoute: typeof rootRoute
-    }
-    '/chat': {
-      id: '/chat'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof ChatImport
       parentRoute: typeof rootRoute
     }
     '/earn': {
@@ -263,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsOfServiceImport
       parentRoute: typeof rootRoute
     }
+    '/chat/$noteId': {
+      id: '/chat/$noteId'
+      path: '/chat/$noteId'
+      fullPath: '/chat/$noteId'
+      preLoaderRoute: typeof ChatNoteIdImport
+      parentRoute: typeof rootRoute
+    }
     '/course/$id': {
       id: '/course/$id'
       path: '/course/$id'
@@ -296,6 +303,13 @@ declare module '@tanstack/react-router' {
       path: '/quiz/$quizId'
       fullPath: '/quiz/$quizId'
       preLoaderRoute: typeof QuizQuizIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/chat/': {
+      id: '/chat/'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatIndexImport
       parentRoute: typeof rootRoute
     }
     '/notes/': {
@@ -347,7 +361,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/balance': typeof BalanceRoute
   '/cdp': typeof CdpRoute
-  '/chat': typeof ChatRoute
   '/earn': typeof EarnRoute
   '/learn': typeof LearnRoute
   '/playground': typeof PlaygroundRoute
@@ -357,11 +370,13 @@ export interface FileRoutesByFullPath {
   '/redirect': typeof RedirectRoute
   '/settings': typeof SettingsRoute
   '/terms-of-service': typeof TermsOfServiceRoute
+  '/chat/$noteId': typeof ChatNoteIdRoute
   '/course/$id': typeof CourseIdRoute
   '/merchant/$id': typeof MerchantIdRoute
   '/notes/$noteId': typeof NotesNoteIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/quiz/$quizId': typeof QuizQuizIdRoute
+  '/chat': typeof ChatIndexRoute
   '/notes': typeof NotesIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/quiz': typeof QuizIndexRoute
@@ -372,7 +387,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/balance': typeof BalanceRoute
   '/cdp': typeof CdpRoute
-  '/chat': typeof ChatRoute
   '/earn': typeof EarnRoute
   '/learn': typeof LearnRoute
   '/playground': typeof PlaygroundRoute
@@ -381,11 +395,13 @@ export interface FileRoutesByTo {
   '/redirect': typeof RedirectRoute
   '/settings': typeof SettingsRoute
   '/terms-of-service': typeof TermsOfServiceRoute
+  '/chat/$noteId': typeof ChatNoteIdRoute
   '/course/$id': typeof CourseIdRoute
   '/merchant/$id': typeof MerchantIdRoute
   '/notes/$noteId': typeof NotesNoteIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/quiz/$quizId': typeof QuizQuizIdRoute
+  '/chat': typeof ChatIndexRoute
   '/notes': typeof NotesIndexRoute
   '/posts': typeof PostsIndexRoute
   '/quiz': typeof QuizIndexRoute
@@ -397,7 +413,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/balance': typeof BalanceRoute
   '/cdp': typeof CdpRoute
-  '/chat': typeof ChatRoute
   '/earn': typeof EarnRoute
   '/learn': typeof LearnRoute
   '/playground': typeof PlaygroundRoute
@@ -407,11 +422,13 @@ export interface FileRoutesById {
   '/redirect': typeof RedirectRoute
   '/settings': typeof SettingsRoute
   '/terms-of-service': typeof TermsOfServiceRoute
+  '/chat/$noteId': typeof ChatNoteIdRoute
   '/course/$id': typeof CourseIdRoute
   '/merchant/$id': typeof MerchantIdRoute
   '/notes/$noteId': typeof NotesNoteIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/quiz/$quizId': typeof QuizQuizIdRoute
+  '/chat/': typeof ChatIndexRoute
   '/notes/': typeof NotesIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/quiz/': typeof QuizIndexRoute
@@ -424,7 +441,6 @@ export interface FileRouteTypes {
     | '/'
     | '/balance'
     | '/cdp'
-    | '/chat'
     | '/earn'
     | '/learn'
     | '/playground'
@@ -434,11 +450,13 @@ export interface FileRouteTypes {
     | '/redirect'
     | '/settings'
     | '/terms-of-service'
+    | '/chat/$noteId'
     | '/course/$id'
     | '/merchant/$id'
     | '/notes/$noteId'
     | '/posts/$postId'
     | '/quiz/$quizId'
+    | '/chat'
     | '/notes'
     | '/posts/'
     | '/quiz'
@@ -448,7 +466,6 @@ export interface FileRouteTypes {
     | '/'
     | '/balance'
     | '/cdp'
-    | '/chat'
     | '/earn'
     | '/learn'
     | '/playground'
@@ -457,11 +474,13 @@ export interface FileRouteTypes {
     | '/redirect'
     | '/settings'
     | '/terms-of-service'
+    | '/chat/$noteId'
     | '/course/$id'
     | '/merchant/$id'
     | '/notes/$noteId'
     | '/posts/$postId'
     | '/quiz/$quizId'
+    | '/chat'
     | '/notes'
     | '/posts'
     | '/quiz'
@@ -471,7 +490,6 @@ export interface FileRouteTypes {
     | '/'
     | '/balance'
     | '/cdp'
-    | '/chat'
     | '/earn'
     | '/learn'
     | '/playground'
@@ -481,11 +499,13 @@ export interface FileRouteTypes {
     | '/redirect'
     | '/settings'
     | '/terms-of-service'
+    | '/chat/$noteId'
     | '/course/$id'
     | '/merchant/$id'
     | '/notes/$noteId'
     | '/posts/$postId'
     | '/quiz/$quizId'
+    | '/chat/'
     | '/notes/'
     | '/posts/'
     | '/quiz/'
@@ -497,7 +517,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BalanceRoute: typeof BalanceRoute
   CdpRoute: typeof CdpRoute
-  ChatRoute: typeof ChatRoute
   EarnRoute: typeof EarnRoute
   LearnRoute: typeof LearnRoute
   PlaygroundRoute: typeof PlaygroundRoute
@@ -507,10 +526,12 @@ export interface RootRouteChildren {
   RedirectRoute: typeof RedirectRoute
   SettingsRoute: typeof SettingsRoute
   TermsOfServiceRoute: typeof TermsOfServiceRoute
+  ChatNoteIdRoute: typeof ChatNoteIdRoute
   CourseIdRoute: typeof CourseIdRoute
   MerchantIdRoute: typeof MerchantIdRoute
   NotesNoteIdRoute: typeof NotesNoteIdRoute
   QuizQuizIdRoute: typeof QuizQuizIdRoute
+  ChatIndexRoute: typeof ChatIndexRoute
   NotesIndexRoute: typeof NotesIndexRoute
   QuizIndexRoute: typeof QuizIndexRoute
   PostsPostIdDeepRoute: typeof PostsPostIdDeepRoute
@@ -520,7 +541,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BalanceRoute: BalanceRoute,
   CdpRoute: CdpRoute,
-  ChatRoute: ChatRoute,
   EarnRoute: EarnRoute,
   LearnRoute: LearnRoute,
   PlaygroundRoute: PlaygroundRoute,
@@ -530,10 +550,12 @@ const rootRouteChildren: RootRouteChildren = {
   RedirectRoute: RedirectRoute,
   SettingsRoute: SettingsRoute,
   TermsOfServiceRoute: TermsOfServiceRoute,
+  ChatNoteIdRoute: ChatNoteIdRoute,
   CourseIdRoute: CourseIdRoute,
   MerchantIdRoute: MerchantIdRoute,
   NotesNoteIdRoute: NotesNoteIdRoute,
   QuizQuizIdRoute: QuizQuizIdRoute,
+  ChatIndexRoute: ChatIndexRoute,
   NotesIndexRoute: NotesIndexRoute,
   QuizIndexRoute: QuizIndexRoute,
   PostsPostIdDeepRoute: PostsPostIdDeepRoute,
@@ -552,7 +574,6 @@ export const routeTree = rootRoute
         "/",
         "/balance",
         "/cdp",
-        "/chat",
         "/earn",
         "/learn",
         "/playground",
@@ -562,10 +583,12 @@ export const routeTree = rootRoute
         "/redirect",
         "/settings",
         "/terms-of-service",
+        "/chat/$noteId",
         "/course/$id",
         "/merchant/$id",
         "/notes/$noteId",
         "/quiz/$quizId",
+        "/chat/",
         "/notes/",
         "/quiz/",
         "/posts_/$postId/deep"
@@ -579,9 +602,6 @@ export const routeTree = rootRoute
     },
     "/cdp": {
       "filePath": "cdp.tsx"
-    },
-    "/chat": {
-      "filePath": "chat.tsx"
     },
     "/earn": {
       "filePath": "earn.tsx"
@@ -614,6 +634,9 @@ export const routeTree = rootRoute
     "/terms-of-service": {
       "filePath": "terms-of-service.tsx"
     },
+    "/chat/$noteId": {
+      "filePath": "chat.$noteId.tsx"
+    },
     "/course/$id": {
       "filePath": "course.$id.tsx"
     },
@@ -629,6 +652,9 @@ export const routeTree = rootRoute
     },
     "/quiz/$quizId": {
       "filePath": "quiz.$quizId.tsx"
+    },
+    "/chat/": {
+      "filePath": "chat.index.tsx"
     },
     "/notes/": {
       "filePath": "notes.index.tsx"

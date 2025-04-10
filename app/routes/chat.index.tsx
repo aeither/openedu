@@ -48,7 +48,7 @@ type Part = {
   text?: string;
 };
 
-export const Route = createFileRoute('/chat')({
+export const Route = createFileRoute('/chat/')({
   component: ChatContent,
 });
 
