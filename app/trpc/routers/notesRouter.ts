@@ -64,11 +64,24 @@ export const notesRouter = createTRPCRouter({
           });
         }
 
+        // Check if there are quizzes associated with this note
+        const quizzes = await db.query.quizzes.findMany({
+          where: (quizzes, { eq }) => eq(quizzes.noteId, input.noteId)
+        });
+
+        // Check if there are flashcards associated with this note
+        const flashcards = await db.query.flashcards.findMany({
+          where: (flashcards, { eq }) => eq(flashcards.noteId, input.noteId)
+        });
+
         return {
           id: note.id,
           content: note.content,
           createdAt: note.createdAt,
-          updatedAt: note.updatedAt
+          updatedAt: note.updatedAt,
+          hasQuiz: quizzes.length > 0,
+          quizId: quizzes.length > 0 ? quizzes[0].id : null,
+          hasFlashcards: flashcards.length > 0
         };
       } catch (error) {
         console.error('Error fetching note:', error);

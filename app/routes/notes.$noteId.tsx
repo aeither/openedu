@@ -166,11 +166,20 @@ function NoteDetailPage() {
           
           {/* Action buttons */}
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm">Create Flashcard</Button>
-            <Button variant="outline" size="sm" onClick={handleCreateQuiz}>Create Quiz</Button>
+            <Button variant="outline" size="sm" disabled>Create Flashcard</Button>
+            
+            {note.hasQuiz && note.quizId ? (
+              <Link to="/quiz/$quizId" params={{ quizId: note.quizId }}>
+                <Button variant="outline" size="sm">Play Quiz</Button>
+              </Link>
+            ) : (
+              <Button variant="outline" size="sm" onClick={handleCreateQuiz}>Create Quiz</Button>
+            )}
+            
             <Link to="/chat/$noteId" params={{ noteId }}>
               <Button variant="outline" size="sm">Chat</Button>
             </Link>
+            
             {!isEditing && (
               <>
                 <Button 
