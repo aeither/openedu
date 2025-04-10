@@ -1,7 +1,6 @@
 <div align="center">
-    <img src="https://github.com/user-attachments/assets/aa4fac2b-a225-407a-b9f7-42318ed2719c" alt="Logo" width="350">
+    <img src="https://github.com/user-attachments/assets/0dfe7c54-3127-4df9-bbf2-2fc8d2a82d47" alt="Logo" width="350">
 </div>
-
 
 # OpenEdu
 
