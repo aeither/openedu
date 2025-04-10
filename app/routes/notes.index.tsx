@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import { useTRPC } from '@/trpc/react';
 import { useAccount } from 'wagmi';
 
-export const Route = createFileRoute('/home')({
+export const Route = createFileRoute('/notes/')({
   component: Index,
 });
 

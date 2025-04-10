@@ -19,7 +19,6 @@ import { Route as PostsImport } from './routes/posts'
 import { Route as PortfolioImport } from './routes/portfolio'
 import { Route as PlaygroundImport } from './routes/playground'
 import { Route as LearnImport } from './routes/learn'
-import { Route as HomeImport } from './routes/home'
 import { Route as EarnImport } from './routes/earn'
 import { Route as ChatImport } from './routes/chat'
 import { Route as CdpImport } from './routes/cdp'
@@ -27,6 +26,7 @@ import { Route as BalanceImport } from './routes/balance'
 import { Route as IndexImport } from './routes/index'
 import { Route as QuizIndexImport } from './routes/quiz.index'
 import { Route as PostsIndexImport } from './routes/posts.index'
+import { Route as NotesIndexImport } from './routes/notes.index'
 import { Route as QuizQuizIdImport } from './routes/quiz.$quizId'
 import { Route as PostsPostIdImport } from './routes/posts.$postId'
 import { Route as NotesNoteIdImport } from './routes/notes.$noteId'
@@ -84,12 +84,6 @@ const LearnRoute = LearnImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const HomeRoute = HomeImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const EarnRoute = EarnImport.update({
   id: '/earn',
   path: '/earn',
@@ -130,6 +124,12 @@ const PostsIndexRoute = PostsIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PostsRoute,
+} as any)
+
+const NotesIndexRoute = NotesIndexImport.update({
+  id: '/notes/',
+  path: '/notes/',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const QuizQuizIdRoute = QuizQuizIdImport.update({
@@ -205,13 +205,6 @@ declare module '@tanstack/react-router' {
       path: '/earn'
       fullPath: '/earn'
       preLoaderRoute: typeof EarnImport
-      parentRoute: typeof rootRoute
-    }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeImport
       parentRoute: typeof rootRoute
     }
     '/learn': {
@@ -305,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizQuizIdImport
       parentRoute: typeof rootRoute
     }
+    '/notes/': {
+      id: '/notes/'
+      path: '/notes'
+      fullPath: '/notes'
+      preLoaderRoute: typeof NotesIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/posts/': {
       id: '/posts/'
       path: '/'
@@ -349,7 +349,6 @@ export interface FileRoutesByFullPath {
   '/cdp': typeof CdpRoute
   '/chat': typeof ChatRoute
   '/earn': typeof EarnRoute
-  '/home': typeof HomeRoute
   '/learn': typeof LearnRoute
   '/playground': typeof PlaygroundRoute
   '/portfolio': typeof PortfolioRoute
@@ -363,6 +362,7 @@ export interface FileRoutesByFullPath {
   '/notes/$noteId': typeof NotesNoteIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/quiz/$quizId': typeof QuizQuizIdRoute
+  '/notes': typeof NotesIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/quiz': typeof QuizIndexRoute
   '/posts/$postId/deep': typeof PostsPostIdDeepRoute
@@ -374,7 +374,6 @@ export interface FileRoutesByTo {
   '/cdp': typeof CdpRoute
   '/chat': typeof ChatRoute
   '/earn': typeof EarnRoute
-  '/home': typeof HomeRoute
   '/learn': typeof LearnRoute
   '/playground': typeof PlaygroundRoute
   '/portfolio': typeof PortfolioRoute
@@ -387,6 +386,7 @@ export interface FileRoutesByTo {
   '/notes/$noteId': typeof NotesNoteIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/quiz/$quizId': typeof QuizQuizIdRoute
+  '/notes': typeof NotesIndexRoute
   '/posts': typeof PostsIndexRoute
   '/quiz': typeof QuizIndexRoute
   '/posts/$postId/deep': typeof PostsPostIdDeepRoute
@@ -399,7 +399,6 @@ export interface FileRoutesById {
   '/cdp': typeof CdpRoute
   '/chat': typeof ChatRoute
   '/earn': typeof EarnRoute
-  '/home': typeof HomeRoute
   '/learn': typeof LearnRoute
   '/playground': typeof PlaygroundRoute
   '/portfolio': typeof PortfolioRoute
@@ -413,6 +412,7 @@ export interface FileRoutesById {
   '/notes/$noteId': typeof NotesNoteIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/quiz/$quizId': typeof QuizQuizIdRoute
+  '/notes/': typeof NotesIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/quiz/': typeof QuizIndexRoute
   '/posts_/$postId/deep': typeof PostsPostIdDeepRoute
@@ -426,7 +426,6 @@ export interface FileRouteTypes {
     | '/cdp'
     | '/chat'
     | '/earn'
-    | '/home'
     | '/learn'
     | '/playground'
     | '/portfolio'
@@ -440,6 +439,7 @@ export interface FileRouteTypes {
     | '/notes/$noteId'
     | '/posts/$postId'
     | '/quiz/$quizId'
+    | '/notes'
     | '/posts/'
     | '/quiz'
     | '/posts/$postId/deep'
@@ -450,7 +450,6 @@ export interface FileRouteTypes {
     | '/cdp'
     | '/chat'
     | '/earn'
-    | '/home'
     | '/learn'
     | '/playground'
     | '/portfolio'
@@ -463,6 +462,7 @@ export interface FileRouteTypes {
     | '/notes/$noteId'
     | '/posts/$postId'
     | '/quiz/$quizId'
+    | '/notes'
     | '/posts'
     | '/quiz'
     | '/posts/$postId/deep'
@@ -473,7 +473,6 @@ export interface FileRouteTypes {
     | '/cdp'
     | '/chat'
     | '/earn'
-    | '/home'
     | '/learn'
     | '/playground'
     | '/portfolio'
@@ -487,6 +486,7 @@ export interface FileRouteTypes {
     | '/notes/$noteId'
     | '/posts/$postId'
     | '/quiz/$quizId'
+    | '/notes/'
     | '/posts/'
     | '/quiz/'
     | '/posts_/$postId/deep'
@@ -499,7 +499,6 @@ export interface RootRouteChildren {
   CdpRoute: typeof CdpRoute
   ChatRoute: typeof ChatRoute
   EarnRoute: typeof EarnRoute
-  HomeRoute: typeof HomeRoute
   LearnRoute: typeof LearnRoute
   PlaygroundRoute: typeof PlaygroundRoute
   PortfolioRoute: typeof PortfolioRoute
@@ -512,6 +511,7 @@ export interface RootRouteChildren {
   MerchantIdRoute: typeof MerchantIdRoute
   NotesNoteIdRoute: typeof NotesNoteIdRoute
   QuizQuizIdRoute: typeof QuizQuizIdRoute
+  NotesIndexRoute: typeof NotesIndexRoute
   QuizIndexRoute: typeof QuizIndexRoute
   PostsPostIdDeepRoute: typeof PostsPostIdDeepRoute
 }
@@ -522,7 +522,6 @@ const rootRouteChildren: RootRouteChildren = {
   CdpRoute: CdpRoute,
   ChatRoute: ChatRoute,
   EarnRoute: EarnRoute,
-  HomeRoute: HomeRoute,
   LearnRoute: LearnRoute,
   PlaygroundRoute: PlaygroundRoute,
   PortfolioRoute: PortfolioRoute,
@@ -535,6 +534,7 @@ const rootRouteChildren: RootRouteChildren = {
   MerchantIdRoute: MerchantIdRoute,
   NotesNoteIdRoute: NotesNoteIdRoute,
   QuizQuizIdRoute: QuizQuizIdRoute,
+  NotesIndexRoute: NotesIndexRoute,
   QuizIndexRoute: QuizIndexRoute,
   PostsPostIdDeepRoute: PostsPostIdDeepRoute,
 }
@@ -554,7 +554,6 @@ export const routeTree = rootRoute
         "/cdp",
         "/chat",
         "/earn",
-        "/home",
         "/learn",
         "/playground",
         "/portfolio",
@@ -567,6 +566,7 @@ export const routeTree = rootRoute
         "/merchant/$id",
         "/notes/$noteId",
         "/quiz/$quizId",
+        "/notes/",
         "/quiz/",
         "/posts_/$postId/deep"
       ]
@@ -585,9 +585,6 @@ export const routeTree = rootRoute
     },
     "/earn": {
       "filePath": "earn.tsx"
-    },
-    "/home": {
-      "filePath": "home.tsx"
     },
     "/learn": {
       "filePath": "learn.tsx"
@@ -632,6 +629,9 @@ export const routeTree = rootRoute
     },
     "/quiz/$quizId": {
       "filePath": "quiz.$quizId.tsx"
+    },
+    "/notes/": {
+      "filePath": "notes.index.tsx"
     },
     "/posts/": {
       "filePath": "posts.index.tsx",

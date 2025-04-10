@@ -28,6 +28,7 @@
     "@assistant-ui/react-markdown": "^0.8.0",
     "@coinbase/agentkit": "^0.6.0",
     "@coinbase/agentkit-vercel-ai-sdk": "^0.1.0",
+    "@lottiefiles/dotlottie-react": "^0.13.3",
     "@mastra/core": "^0.7.0",
     "@privy-io/public-api": "^2.20.5",
     "@radix-ui/react-accordion": "^1.2.4",
