@@ -69,7 +69,9 @@ function RootDocument(props: Readonly<{ children: React.ReactNode }>) {
 				<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
 				<WagmiRainbowKitProvider>
 					<Header />
-					{props.children}
+					<div className="pt-16">
+						{props.children}
+					</div>
 					{/* {process.env.NODE_ENV === 'development' && (
 						<>
 							<TanStackRouterDevtools position="bottom-right" />

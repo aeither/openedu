@@ -61,9 +61,21 @@ const FeatureCard = memo(() => {
           <ul className="space-y-2">
             <li className="flex items-center gap-2">
               <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-              <span>Mint free tokens for testing</span>
+              <span>Swap tokens on Sailfish</span>
             </li>
             <li className="flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+              <span>Choose between 4 options and mint for free on Ed3</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+              <span>Mint exclusive token on Grasp Academy</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+              <span>Create quiz on DailyWiser</span>
+            </li>
+            {/* <li className="flex items-center gap-2">
               <div className="h-1.5 w-1.5 rounded-full bg-primary" />
               <span>Send native coin</span>
             </li>
@@ -74,7 +86,7 @@ const FeatureCard = memo(() => {
             <li className="flex items-center gap-2">
               <div className="h-1.5 w-1.5 rounded-full bg-primary" />
               <span>Show dashboard</span>
-            </li>
+            </li> */}
           </ul>
         </div>
       </div>

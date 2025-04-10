@@ -19,7 +19,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   showNotifications = true
 }) => {
   return (
-    <div className="pb-16 min-h-screen bg-background">
+    <div className="pb-16 pt-16 min-h-screen bg-background">
       <main className="max-w-lg mx-auto bg-background min-h-screen">
         {/* <Header 
           title={title} 
