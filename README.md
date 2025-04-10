@@ -8,7 +8,7 @@ OpenEdu is the unified interface for accessing the EDU Chain ecosystem. It seaml
 
 ## 🏁 DEMO
 
-DEMO_LINK
+https://meek-mandazi-6bfb82.netlify.app/chat
 
 ## 🌟 Key Features
 
