@@ -11,7 +11,7 @@ export const Route = createFileRoute('/')({
 // Hero Section Component
 const HeroSection = memo(() => {
   return (
-    <div className="relative z-10 text-center py-16 px-4">
+    <div className="relative z-10 text-center py-8 px-4">
       <h1 className="text-4xl md:text-5xl font-bold mb-4">
         Unified Education<br/>on the Blockchain
       </h1>
