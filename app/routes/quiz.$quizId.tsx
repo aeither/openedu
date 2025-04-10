@@ -280,9 +280,7 @@ function QuizDetailComponent() {
                   variant="outline" 
                   size="sm"
                   onClick={handleNextQuestion} 
-                  disabled={currentQuestion === quizData.quizData.questions.length - 1 
-                    ? false 
-                    : !isCurrentAnswerCorrect() || !showExplanation}
+                  disabled={!isCurrentAnswerCorrect() || !showExplanation}
                 >
                   {currentQuestion === quizData.quizData.questions.length - 1 ? "Finish Quiz" : "Next"}
                 </Button>
