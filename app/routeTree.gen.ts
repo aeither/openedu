@@ -19,6 +19,7 @@ import { Route as PostsImport } from './routes/posts'
 import { Route as PortfolioImport } from './routes/portfolio'
 import { Route as PlaygroundImport } from './routes/playground'
 import { Route as LearnImport } from './routes/learn'
+import { Route as HomeImport } from './routes/home'
 import { Route as EarnImport } from './routes/earn'
 import { Route as ChatImport } from './routes/chat'
 import { Route as CdpImport } from './routes/cdp'
@@ -80,6 +81,12 @@ const PlaygroundRoute = PlaygroundImport.update({
 const LearnRoute = LearnImport.update({
   id: '/learn',
   path: '/learn',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const HomeRoute = HomeImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -198,6 +205,13 @@ declare module '@tanstack/react-router' {
       path: '/earn'
       fullPath: '/earn'
       preLoaderRoute: typeof EarnImport
+      parentRoute: typeof rootRoute
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeImport
       parentRoute: typeof rootRoute
     }
     '/learn': {
@@ -335,6 +349,7 @@ export interface FileRoutesByFullPath {
   '/cdp': typeof CdpRoute
   '/chat': typeof ChatRoute
   '/earn': typeof EarnRoute
+  '/home': typeof HomeRoute
   '/learn': typeof LearnRoute
   '/playground': typeof PlaygroundRoute
   '/portfolio': typeof PortfolioRoute
@@ -359,6 +374,7 @@ export interface FileRoutesByTo {
   '/cdp': typeof CdpRoute
   '/chat': typeof ChatRoute
   '/earn': typeof EarnRoute
+  '/home': typeof HomeRoute
   '/learn': typeof LearnRoute
   '/playground': typeof PlaygroundRoute
   '/portfolio': typeof PortfolioRoute
@@ -383,6 +399,7 @@ export interface FileRoutesById {
   '/cdp': typeof CdpRoute
   '/chat': typeof ChatRoute
   '/earn': typeof EarnRoute
+  '/home': typeof HomeRoute
   '/learn': typeof LearnRoute
   '/playground': typeof PlaygroundRoute
   '/portfolio': typeof PortfolioRoute
@@ -409,6 +426,7 @@ export interface FileRouteTypes {
     | '/cdp'
     | '/chat'
     | '/earn'
+    | '/home'
     | '/learn'
     | '/playground'
     | '/portfolio'
@@ -432,6 +450,7 @@ export interface FileRouteTypes {
     | '/cdp'
     | '/chat'
     | '/earn'
+    | '/home'
     | '/learn'
     | '/playground'
     | '/portfolio'
@@ -454,6 +473,7 @@ export interface FileRouteTypes {
     | '/cdp'
     | '/chat'
     | '/earn'
+    | '/home'
     | '/learn'
     | '/playground'
     | '/portfolio'
@@ -479,6 +499,7 @@ export interface RootRouteChildren {
   CdpRoute: typeof CdpRoute
   ChatRoute: typeof ChatRoute
   EarnRoute: typeof EarnRoute
+  HomeRoute: typeof HomeRoute
   LearnRoute: typeof LearnRoute
   PlaygroundRoute: typeof PlaygroundRoute
   PortfolioRoute: typeof PortfolioRoute
@@ -501,6 +522,7 @@ const rootRouteChildren: RootRouteChildren = {
   CdpRoute: CdpRoute,
   ChatRoute: ChatRoute,
   EarnRoute: EarnRoute,
+  HomeRoute: HomeRoute,
   LearnRoute: LearnRoute,
   PlaygroundRoute: PlaygroundRoute,
   PortfolioRoute: PortfolioRoute,
@@ -532,6 +554,7 @@ export const routeTree = rootRoute
         "/cdp",
         "/chat",
         "/earn",
+        "/home",
         "/learn",
         "/playground",
         "/portfolio",
@@ -562,6 +585,9 @@ export const routeTree = rootRoute
     },
     "/earn": {
       "filePath": "earn.tsx"
+    },
+    "/home": {
+      "filePath": "home.tsx"
     },
     "/learn": {
       "filePath": "learn.tsx"
