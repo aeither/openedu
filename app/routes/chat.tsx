@@ -26,6 +26,8 @@ import {
   QuizGeneratorTool,
   YuzuBuddiesMinterTool,
 } from "@/components/ui-tools";
+import { EcosystemBeamSection } from '../components/EcosystemBeam';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Lazy load components
 const FinanceDashboardTool = lazy(() => import("@/components/ui-tools/FinanceDashboardTool"));
@@ -366,7 +368,16 @@ function ChatContent() {
     }
 
     if (messages.length === 0) {
-      return <FeatureCard />;
+      return (
+        <>
+          <FeatureCard />
+          <Card className="mt-6 border-none shadow-none bg-transparent">
+            <CardContent className="p-0">
+              <EcosystemBeamSection />
+            </CardContent>
+          </Card>
+        </>
+      );
     }
 
     return (

@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Database, Link as LinkIcon, Library, Wrench, Network } from 'lucide-react';
-import { memo } from 'react';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { ArrowRight, Database, Link as LinkIcon, Library, Wrench, Network } from 'lucide-react'; 
+import { memo } from 'react'; 
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'; 
 
 export const Route = createFileRoute('/')({
     component: LandingPage,
@@ -45,7 +45,7 @@ const FeatureHighlight = memo(({ icon: Icon, title, description }: { icon: React
 
 function LandingPage() {
     return (
-        <div className="relative overflow-hidden min-h-screen flex flex-col justify-center">
+        <div className="relative overflow-hidden min-h-screen flex flex-col">
             <div className="absolute inset-0 z-0 opacity-30 dark:opacity-10 pointer-events-none">
               <DotLottieReact
                 src="https://lottie.host/e84d07ef-92e1-43a4-a5e2-6f29ef758b87/80jrujqMW0.lottie"
@@ -55,29 +55,30 @@ function LandingPage() {
               />
             </div>
             
-            <div className="space-y-12 md:space-y-20 pb-16 pt-16">
+            <div className="space-y-12 md:space-y-20 pb-16 pt-16 flex-grow"> 
               <HeroSection />
               
               <div className="max-w-5xl mx-auto px-4">
                 <h2 className="relative z-10 text-3xl font-bold text-center mb-10">Why OpenEdu?</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <FeatureHighlight 
-                    icon={Network}
+                    icon={Network} 
                     title="Ecosystem Integration"
                     description="A centralized platform connecting users to various applications in the EDU Chain ecosystem."
                   />
                   <FeatureHighlight 
-                    icon={Wrench}
+                    icon={Wrench} 
                     title="Educational Tools"
                     description="AI-driven tools like notes, flashcards, and quiz generators for personalized learning."
                   />
                   <FeatureHighlight 
-                    icon={Library}
+                    icon={Library} 
                     title="Knowledge Repository"
                     description="Access the EDU Chain's comprehensive educational resources."
                   />
                 </div>
               </div>
+
             </div>
         </div>
     );
