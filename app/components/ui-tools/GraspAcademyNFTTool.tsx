@@ -25,7 +25,6 @@ const NFT_ABI = [
   }
 ];
 
-// This is a placeholder - you would replace with the actual contract address
 const NFT_CONTRACT_ADDRESS = "0x5155b576356A65C929B14e6bFDE4723299861E5F";
 const NFT_URI = "ipfs://QmNMU7pXh53H37qRmxRnqApMRdeHjVrijb2XaB7VUyofrg";
 const NFT_IMAGE = "https://ipfs.io/ipfs/Qmd6tSTzsy2M6Z3BpfP1SEJ2Cd7eX5GXzY1DWNaZX4A4X6";

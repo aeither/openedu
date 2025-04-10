@@ -5,7 +5,7 @@ import {
   useWriteContract
 } from 'wagmi';
 import { cronologicalNFTAbi } from '@/abi/cronologicalNFT';
-import { NFT_CONTRACT_ADDRESS } from '@/constants';
+import { SOULBOUND_NFT_ADDRESS } from '@/constants';
 
 export function MintNFT() {
   const { 
@@ -19,7 +19,7 @@ export function MintNFT() {
     e.preventDefault();
     
     writeContract({
-      address: NFT_CONTRACT_ADDRESS as `0x${string}`,
+      address: SOULBOUND_NFT_ADDRESS as `0x${string}`,
       abi: cronologicalNFTAbi,
       functionName: 'mint',
       // No args needed for this mint function

@@ -1,6 +1,6 @@
 import { cronologicalNFTAbi } from "@/abi/cronologicalNFT";
 import { Button } from "@/components/ui/button";
-import { NFT_CONTRACT_ADDRESS } from "@/constants";
+import { SOULBOUND_NFT_ADDRESS } from "@/constants";
 import { Loader2 } from "lucide-react";
 import { useAccount, useReadContract } from "wagmi";
 import { cronos } from "wagmi/chains";
@@ -11,7 +11,7 @@ export default function ShowDashboardTool() {
 
   // Get NFT balance
   const { data: nftBalance, isError: nftBalanceError, isLoading: nftBalanceLoading } = useReadContract({
-    address: NFT_CONTRACT_ADDRESS as `0x${string}`,
+    address: SOULBOUND_NFT_ADDRESS as `0x${string}`,
     abi: cronologicalNFTAbi,
     functionName: "balanceOf",
     args: address ? [address as `0x${string}`] : undefined,

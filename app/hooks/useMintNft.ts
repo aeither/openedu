@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { cronologicalNFTAbi } from "@/abi/cronologicalNFT";
-import { NFT_CONTRACT_ADDRESS } from '@/constants';
+import { SOULBOUND_NFT_ADDRESS } from '@/constants';
 
 export function useMintNftTool() {
     const {
@@ -46,7 +46,7 @@ export function useMintNftTool() {
 
         try {
             writeNftContract({
-                address: NFT_CONTRACT_ADDRESS,
+                address: SOULBOUND_NFT_ADDRESS as `0x${string}`,
                 abi: cronologicalNFTAbi,
                 functionName: 'mint',
                 args: [params.to],

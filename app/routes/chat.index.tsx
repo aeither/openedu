@@ -28,6 +28,8 @@ import {
 } from "@/components/ui-tools";
 import { EcosystemBeamSection } from '../components/EcosystemBeam';
 import { Card, CardContent } from '@/components/ui/card';
+import { ClaimPointsCard } from "@/components/ClaimPointsCard";
+import ShowDashboardTool from "@/components/ui-tools/ShowDashboardTool";
 
 // Lazy load components
 const FinanceDashboardTool = lazy(() => import("@/components/ui-tools/FinanceDashboardTool"));
@@ -188,6 +190,23 @@ const MessagePartRenderer = memo(({ part, index }: { part: Part, index: number }
     );
   }
 
+  if (
+    part.type === "tool-invocation" &&
+    part.toolInvocation?.toolName === showDashboardTool.id
+  ) {
+    // Handle showDashboardTool invocation based on state
+    if (part.toolInvocation.state === "result") {
+      return <ShowDashboardTool key={index} />;
+    } else {
+      // Show loading indicator for "call" state
+      return (
+        <p key={index} className="text-muted-foreground italic">
+          Loading dashboard...
+        </p>
+      );
+    }
+  }
+
   // Only show loading for tool invocations in "call" state
   if (part.type === "tool-invocation" && part.toolInvocation?.state === "call") {
     return (
@@ -228,6 +247,15 @@ const MessageBubble = memo(({ message }: { message: any }) => {
             <ReactMarkdown>{message.content}</ReactMarkdown>
           </div>
         )}
+        {/* Render ClaimPointsCard only for assistant messages that are NOT just the dashboard tool */}
+        {message.role === "assistant" &&
+          !message.parts?.some(
+            (part: any) =>
+              part.type === "tool-invocation" &&
+              part.toolInvocation?.toolName === showDashboardTool.id
+          ) && (
+            <ClaimPointsCard points={500} />
+          )}
       </div>
     </div>
   );
@@ -239,7 +267,7 @@ function ChatContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { isConnected, address } = useAccount();
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
-  
+
   // Keep hooks at the top level, but we can conditionally use their results
   const { handleMintNft } = useMintNftTool();
   const { handleSendNativeCoin } = useSendNativeCoinTool();
@@ -327,6 +355,10 @@ function ChatContent() {
 
           case swapTool.id:
             // Add logic to handle swapTool
+            break;
+
+          case showDashboardTool.id:
+            // Add logic to handle showDashboardTool
             break;
 
           default:
