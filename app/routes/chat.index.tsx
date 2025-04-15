@@ -355,21 +355,61 @@ function ChatContent() {
 
     // Handle focus and blur events on the textarea to manage iOS keyboard
     const handleFocus = () => {
-      // We want to prevent the automatic scroll behavior only when there's no text
-      // This fixes the issue where the input jumps too much when empty
-      if (input.trim() === '') {
-        // Prevent the default scrolling behavior
-        // Don't do anything, which prevents the excessive jumping
-      } else {
-        // When there's content, we still want some scrolling to ensure the input is visible
+      // Store the current scroll position
+      const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+      
+      // iOS detection
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      
+      if (isIOS) {
+        // Prevent default iOS keyboard behavior entirely and handle it ourselves
+        // This is especially important when the input is empty
         setTimeout(() => {
-          // Scroll only enough to make the input visible without jumping to the very top
-          const textarea = document.querySelector('textarea');
-          if (textarea) {
-            textarea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          // Prevent body scroll and maintain position
+          document.body.style.position = 'fixed';
+          document.body.style.top = `-${scrollPosition}px`;
+          document.body.style.width = '100%';
+          document.body.style.height = '100%';
+          
+          // Fixed positioning for the textarea container to prevent jumping
+          const formContainer = document.querySelector('form')?.parentElement;
+          if (formContainer) {
+            formContainer.style.position = 'fixed';
+            formContainer.style.bottom = '0';
+            formContainer.style.left = '0';
+            formContainer.style.right = '0';
+            formContainer.style.zIndex = '999';
+            formContainer.style.backgroundColor = 'var(--background)';
+            formContainer.style.borderTop = '1px solid var(--border)';
           }
-        }, 50);
+        }, 100);
       }
+    };
+    
+    // Handle blur event to restore normal scrolling
+    const handleBlur = () => {
+      const scrollPosition = parseInt(document.body.style.top || '0', 10) * -1;
+      
+      // Remove fixed positioning
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      
+      // Restore the form container styling
+      const formContainer = document.querySelector('form')?.parentElement;
+      if (formContainer) {
+        formContainer.style.position = '';
+        formContainer.style.bottom = '';
+        formContainer.style.left = '';
+        formContainer.style.right = '';
+        formContainer.style.zIndex = '';
+        formContainer.style.backgroundColor = '';
+        formContainer.style.borderTop = '';
+      }
+      
+      // Restore scroll position
+      window.scrollTo(0, scrollPosition);
     };
 
     window.addEventListener('resize', handleResize);
@@ -378,15 +418,17 @@ function ChatContent() {
     const textarea = document.querySelector('textarea');
     if (textarea) {
       textarea.addEventListener('focus', handleFocus);
+      textarea.addEventListener('blur', handleBlur);
     }
 
     return () => {
       window.removeEventListener('resize', handleResize);
       if (textarea) {
         textarea.removeEventListener('focus', handleFocus);
+        textarea.removeEventListener('blur', handleBlur);
       }
     };
-  }, [input]); // Add input as dependency to re-attach event listener when input changes
+  }, []);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();

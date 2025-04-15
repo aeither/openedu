@@ -29,6 +29,13 @@ const themeScript = `
     }
   }
   document.documentElement.classList.add(theme);
+  
+  // Fix iOS white background in dark mode when keyboard opens
+  if (theme === 'dark') {
+    // Force background color on the entire body and html elements
+    document.body.style.backgroundColor = 'hsl(var(--background))';
+    document.documentElement.style.backgroundColor = 'hsl(var(--background))';
+  }
 `;
 
 export const Route = createRootRouteWithContext<{
