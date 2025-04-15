@@ -69,7 +69,7 @@ function NoteDetailPage() {
           description: "Your note has been deleted successfully.",
         });
         // Navigate back to notes list
-        navigate({ to: '/' });
+        navigate({ to: '/notes' });
       },
       onError: (error: any) => {
         toast({
