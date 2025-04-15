@@ -272,41 +272,6 @@ function ChatContent() {
   const { handleMintNft } = useMintNftTool();
   const { handleSendNativeCoin } = useSendNativeCoinTool();
 
-  // Handle iOS viewport issues with keyboard
-  useEffect(() => {
-    // Set initial viewport height
-    setViewportHeight(window.innerHeight);
-
-    const handleResize = () => {
-      // Update viewport height when window resizes
-      setViewportHeight(window.innerHeight);
-    };
-
-    // Handle focus and blur events on the textarea to manage iOS keyboard
-    const handleFocus = () => {
-      // On iOS, add a short timeout to allow the keyboard to appear
-      setTimeout(() => {
-        window.scrollTo(0, 0);
-        document.documentElement.scrollTop = 0;
-      }, 50);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    // Get the textarea element
-    const textarea = document.querySelector('textarea');
-    if (textarea) {
-      textarea.addEventListener('focus', handleFocus);
-    }
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      if (textarea) {
-        textarea.removeEventListener('focus', handleFocus);
-      }
-    };
-  }, []);
-
   const {
     messages,
     input,
@@ -377,6 +342,51 @@ function ChatContent() {
       }
     },
   });
+
+  // Handle iOS viewport issues with keyboard
+  useEffect(() => {
+    // Set initial viewport height
+    setViewportHeight(window.innerHeight);
+
+    const handleResize = () => {
+      // Update viewport height when window resizes
+      setViewportHeight(window.innerHeight);
+    };
+
+    // Handle focus and blur events on the textarea to manage iOS keyboard
+    const handleFocus = () => {
+      // We want to prevent the automatic scroll behavior only when there's no text
+      // This fixes the issue where the input jumps too much when empty
+      if (input.trim() === '') {
+        // Prevent the default scrolling behavior
+        // Don't do anything, which prevents the excessive jumping
+      } else {
+        // When there's content, we still want some scrolling to ensure the input is visible
+        setTimeout(() => {
+          // Scroll only enough to make the input visible without jumping to the very top
+          const textarea = document.querySelector('textarea');
+          if (textarea) {
+            textarea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }, 50);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Get the textarea element
+    const textarea = document.querySelector('textarea');
+    if (textarea) {
+      textarea.addEventListener('focus', handleFocus);
+    }
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (textarea) {
+        textarea.removeEventListener('focus', handleFocus);
+      }
+    };
+  }, [input]); // Add input as dependency to re-attach event listener when input changes
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
