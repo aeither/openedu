@@ -152,5 +152,63 @@ export const APIRoute = createAPIFileRoute('/api/tg')({
         error: error instanceof Error ? error.message : 'Failed to process request' 
       }, { status: 500 })
     }
+  },
+  DELETE: async ({ request }) => {
+    try {
+      // Get the query parameters
+      const url = new URL(request.url)
+      const quizId = url.searchParams.get('quiz_id')
+      const chatId = url.searchParams.get('chat_id')
+      
+      // Validate required parameters
+      if (!quizId) {
+        return json({ error: 'Missing quiz_id parameter' }, { status: 400 })
+      }
+      
+      if (!chatId) {
+        return json({ error: 'Missing chat_id parameter' }, { status: 400 })
+      }
+      
+      const userAddress = `telegram:${chatId}`
+      
+      // First check if the quiz exists and belongs to the user
+      const quizWithNote = await db
+        .select({ 
+          quizId: quizzes.id,
+          noteId: quizzes.noteId,
+          userAddress: notes.userAddress
+        })
+        .from(quizzes)
+        .innerJoin(notes, eq(quizzes.noteId, notes.id))
+        .where(eq(quizzes.id, quizId))
+        .limit(1)
+      
+      // If no quiz found or doesn't belong to this user
+      if (quizWithNote.length === 0) {
+        return json({ error: 'Quiz not found' }, { status: 404 })
+      }
+      
+      if (quizWithNote[0].userAddress !== userAddress) {
+        return json({ error: 'Unauthorized. This quiz does not belong to you.' }, { status: 403 })
+      }
+      
+      // Delete the quiz
+      await db.delete(quizzes).where(eq(quizzes.id, quizId))
+      
+      // Optionally delete the associated note if you want
+      // This is commented out by default since you might want to keep notes
+      // await db.delete(notes).where(eq(notes.id, quizWithNote[0].noteId))
+      
+      return json({ 
+        success: true,
+        message: 'Quiz successfully deleted',
+        deleted_quiz_id: quizId
+      })
+    } catch (error) {
+      console.error('Error deleting quiz:', error)
+      return json({ 
+        error: error instanceof Error ? error.message : 'Failed to delete quiz' 
+      }, { status: 500 })
+    }
   }
 })
