@@ -4,10 +4,61 @@ import { generateQuizTool } from '../../mastra/tools'
 import { db } from '@/db/drizzle'
 import { notes, quizzes, users } from '@/db/schema'
 import { v4 as uuidv4 } from 'uuid'
+import { eq, desc } from 'drizzle-orm'
 
 export const APIRoute = createAPIFileRoute('/api/tg')({
-  GET: ({ request, params }) => {
-    return json({ message: 'Hello "/api/tg"!' })
+  GET: async ({ request, params }) => {
+    try {
+      // Get the chat_id from query parameter
+      const url = new URL(request.url)
+      const chatId = url.searchParams.get('chat_id')
+      
+      if (!chatId) {
+        return json({ error: 'Missing chat_id parameter' }, { status: 400 })
+      }
+      
+      const userAddress = `telegram:${chatId}`
+      
+      // Query all quizzes for this user through notes
+      const userQuizzes = await db
+        .select({
+          quiz: quizzes,
+          noteContent: notes.content,
+          createdAt: notes.createdAt
+        })
+        .from(quizzes)
+        .innerJoin(notes, eq(quizzes.noteId, notes.id))
+        .where(eq(notes.userAddress, userAddress))
+        .orderBy(desc(notes.createdAt))
+      
+      // Format the quizzes for response
+      const formattedQuizzes = userQuizzes.map(item => {
+        // Safely access quiz data with type checking
+        const quizData = item.quiz.quizData as { questions: any[] } | undefined
+        const questionCount = quizData?.questions?.length || 0
+        
+        return {
+          id: item.quiz.id,
+          noteContent: item.noteContent.substring(0, 100) + (item.noteContent.length > 100 ? '...' : ''),
+          questionCount,
+          createdAt: item.createdAt,
+          // Generate quiz URL based on environment
+          url: `${process.env.NODE_ENV === 'development' 
+            ? 'http://localhost:3000' 
+            : 'https://openedu.dailywiser.xyz'}/quiz/${item.quiz.id}`
+        }
+      })
+      
+      return json({ 
+        chat_id: chatId,
+        quizzes: formattedQuizzes
+      })
+    } catch (error) {
+      console.error('Error fetching user quizzes:', error)
+      return json({ 
+        error: error instanceof Error ? error.message : 'Failed to fetch quizzes' 
+      }, { status: 500 })
+    }
   },
   POST: async ({ request }) => {
     try {
