@@ -79,7 +79,7 @@ export const APIRoute = createAPIFileRoute('/api/tg')({
       // Generate quiz URL based on environment
       const baseUrl = process.env.NODE_ENV === 'development' 
         ? 'http://localhost:3000' 
-        : 'https://meek-mandazi-6bfb82.netlify.app'
+        : 'https://openedu.dailywiser.xyz'
       const quizUrl = `${baseUrl}/quiz/${quizId}`
       
       // Prepare response for Telegram
