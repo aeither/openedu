@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQuery } from '@tanstack/react-query';
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 interface Flashcard {
   id: string;
@@ -140,21 +142,49 @@ function FlashcardDeckComponent() {
     <div className="container mx-auto px-4 py-8">
       <PageHeader />
       
+      {/* Deck header with progress */}
+      <div className="max-w-lg mx-auto mb-4">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-lg font-medium">{deckData.deckName}</h2>
+          <Badge variant="outline">{current + 1} / {deckData.flashcards.length}</Badge>
+        </div>
+        <Progress value={((current + 1) / deckData.flashcards.length) * 100} className="h-2 rounded-full" />
+      </div>
+      
       <Card className="max-w-lg mx-auto">
         <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>Card {current + 1} of {deckData.flashcards.length}</CardTitle>
-            <div className="text-sm text-muted-foreground">
-              {deckData.deckName}
-            </div>
-          </div>
+          <CardTitle>Card {current + 1} of {deckData.flashcards.length}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div 
-            className="min-h-[150px] flex items-center justify-center text-xl font-semibold cursor-pointer p-6 bg-accent/5 rounded-md transition-all duration-200"
+          <div
+            className="w-full h-[200px] cursor-pointer"
+            style={{ perspective: '1000px' }}
             onClick={handleFlip}
           >
-            {showBack ? card.back : card.front}
+            <div
+              className="relative w-full h-full"
+              style={{
+                transformStyle: 'preserve-3d',
+                transition: 'transform 0.5s',
+                transform: showBack ? 'rotateY(180deg)' : 'rotateY(0deg)'
+              }}
+            >
+              <div
+                className="absolute inset-0 flex items-center justify-center p-6 bg-accent/10 rounded-md"
+                style={{ backfaceVisibility: 'hidden' }}
+              >
+                {card.front}
+              </div>
+              <div
+                className="absolute inset-0 flex items-center justify-center p-6 bg-accent/30 rounded-md"
+                style={{
+                  backfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)'
+                }}
+              >
+                {card.back}
+              </div>
+            </div>
           </div>
         </CardContent>
         <CardFooter className="flex justify-between items-center">

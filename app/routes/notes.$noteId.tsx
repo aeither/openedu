@@ -209,14 +209,20 @@ function NoteDetailPage() {
           
           {/* Action buttons */}
           <div className="flex flex-wrap gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleCreateFlashcard} 
-              disabled={createFlashcardMutation.isPending}
-            >
-              {createFlashcardMutation.isPending ? 'Creating...' : 'Create Flashcard'}
-            </Button>
+            {note.hasFlashcards ? (
+              <Link to="/flashcard/$deckId" params={{ deckId: noteId }}>
+                <Button variant="outline" size="sm">Play Flashcards</Button>
+              </Link>
+            ) : (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleCreateFlashcard} 
+                disabled={createFlashcardMutation.isPending}
+              >
+                {createFlashcardMutation.isPending ? 'Creating...' : 'Create Flashcards'}
+              </Button>
+            )}
             
             {note.hasQuiz && note.quizId ? (
               <Link to="/quiz/$quizId" params={{ quizId: note.quizId }}>
