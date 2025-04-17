@@ -81,6 +81,37 @@ function NoteDetailPage() {
     })
   );
 
+  // Flashcard creation mutation (typed)
+  interface Flashcard {
+    front: string;
+    back: string;
+  }
+  interface FlashcardResponse {
+    flashcards: Flashcard[];
+    noteId?: string;
+    deckName?: string;
+  }
+  
+  const createFlashcardMutation = useMutation(
+    trpc.flashcard.generateFlashcards.mutationOptions({
+      onSuccess: (data: FlashcardResponse) => {
+        toast({
+          title: 'Flashcards created',
+          description: `${data.flashcards?.length || 0} cards generated.`
+        });
+        // Refresh note data to update UI
+        refetch();
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Error',
+          description: `Failed to create flashcards: ${error.message}`,
+          variant: 'destructive',
+        });
+      }
+    })
+  );
+
   const handleEdit = () => {
     setEditedContent(note?.content || '');
     setIsEditing(true);
@@ -106,6 +137,18 @@ function NoteDetailPage() {
     if (!note) return;
     // Navigate to quiz generator with prefilled content
     navigate({ to: '/quiz', search: { content: note.content } });
+  };
+
+  const handleCreateFlashcard = () => {
+    if (!note) return;
+    // Since note might not have userAddress directly exposed, we can check if
+    // the userAddress appears somewhere in the note structure or use a fallback
+    // You might need to modify your getNoteById query in notesRouter.ts to include userAddress
+    createFlashcardMutation.mutate({ 
+      content: note.content,
+      count: 8,
+      userAddress: 'telegram:local' // Temporary placeholder - this should be fixed to get actual userAddress
+    });
   };
 
   const handleDeleteNote = () => {
@@ -166,7 +209,14 @@ function NoteDetailPage() {
           
           {/* Action buttons */}
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" disabled>Create Flashcard</Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleCreateFlashcard} 
+              disabled={createFlashcardMutation.isPending}
+            >
+              {createFlashcardMutation.isPending ? 'Creating...' : 'Create Flashcard'}
+            </Button>
             
             {note.hasQuiz && note.quizId ? (
               <Link to="/quiz/$quizId" params={{ quizId: note.quizId }}>

@@ -247,3 +247,47 @@ export const generateQuizTool = createTool({
     };
   }
 });
+
+// Tool for generating flashcards
+export const generateFlashcardTool = createTool({
+  id: 'generateFlashcardTool',
+  description: 'Generate educational flashcards based on provided content',
+  inputSchema: z.object({
+    content: z.string().describe('The educational content to generate flashcards from'),
+    count: z.number().optional().default(5).describe('Number of flashcards to generate (default: 5)')
+  }),
+  outputSchema: z.object({
+    flashcards: z.array(z.object({
+      front: z.string().describe('Question or concept on the front side of the flashcard'),
+      back: z.string().describe('Answer or explanation on the back side of the flashcard')
+    })).describe('Array of generated flashcards')
+  }),
+  execute: async ({ context }) => {
+    // Access input directly from context
+    const { content, count = 5 } = context;
+    
+    const result = await generateObject({
+      model: groq("llama-3.3-70b-versatile"),
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an education expert. Your job is to take educational content and create helpful flashcards that capture key concepts, definitions, or important facts from the material. Each flashcard should have a clear front (question/concept) and back (answer/explanation).",
+        },
+        {
+          role: "user",
+          content: `Create ${count} educational flashcards based on the following content:\n\n${content}`
+        }
+      ],
+      output: 'array',
+      schema: z.object({
+        front: z.string().describe('Question or concept on the front side of the flashcard'),
+        back: z.string().describe('Answer or explanation on the back side of the flashcard')
+      }),
+    });
+    
+    return {
+      flashcards: result.object.slice(0, count)
+    };
+  }
+});

@@ -26,11 +26,13 @@ import { Route as IndexImport } from './routes/index'
 import { Route as QuizIndexImport } from './routes/quiz.index'
 import { Route as PostsIndexImport } from './routes/posts.index'
 import { Route as NotesIndexImport } from './routes/notes.index'
+import { Route as FlashcardIndexImport } from './routes/flashcard.index'
 import { Route as ChatIndexImport } from './routes/chat.index'
 import { Route as QuizQuizIdImport } from './routes/quiz.$quizId'
 import { Route as PostsPostIdImport } from './routes/posts.$postId'
 import { Route as NotesNoteIdImport } from './routes/notes.$noteId'
 import { Route as MerchantIdImport } from './routes/merchant.$id'
+import { Route as FlashcardDeckIdImport } from './routes/flashcard.$deckId'
 import { Route as CourseIdImport } from './routes/course.$id'
 import { Route as ChatNoteIdImport } from './routes/chat.$noteId'
 import { Route as PostsPostIdDeepImport } from './routes/posts_.$postId.deep'
@@ -127,6 +129,12 @@ const NotesIndexRoute = NotesIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const FlashcardIndexRoute = FlashcardIndexImport.update({
+  id: '/flashcard/',
+  path: '/flashcard/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const ChatIndexRoute = ChatIndexImport.update({
   id: '/chat/',
   path: '/chat/',
@@ -154,6 +162,12 @@ const NotesNoteIdRoute = NotesNoteIdImport.update({
 const MerchantIdRoute = MerchantIdImport.update({
   id: '/merchant/$id',
   path: '/merchant/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const FlashcardDeckIdRoute = FlashcardDeckIdImport.update({
+  id: '/flashcard/$deckId',
+  path: '/flashcard/$deckId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -277,6 +291,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CourseIdImport
       parentRoute: typeof rootRoute
     }
+    '/flashcard/$deckId': {
+      id: '/flashcard/$deckId'
+      path: '/flashcard/$deckId'
+      fullPath: '/flashcard/$deckId'
+      preLoaderRoute: typeof FlashcardDeckIdImport
+      parentRoute: typeof rootRoute
+    }
     '/merchant/$id': {
       id: '/merchant/$id'
       path: '/merchant/$id'
@@ -310,6 +331,13 @@ declare module '@tanstack/react-router' {
       path: '/chat'
       fullPath: '/chat'
       preLoaderRoute: typeof ChatIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/flashcard/': {
+      id: '/flashcard/'
+      path: '/flashcard'
+      fullPath: '/flashcard'
+      preLoaderRoute: typeof FlashcardIndexImport
       parentRoute: typeof rootRoute
     }
     '/notes/': {
@@ -372,11 +400,13 @@ export interface FileRoutesByFullPath {
   '/terms-of-service': typeof TermsOfServiceRoute
   '/chat/$noteId': typeof ChatNoteIdRoute
   '/course/$id': typeof CourseIdRoute
+  '/flashcard/$deckId': typeof FlashcardDeckIdRoute
   '/merchant/$id': typeof MerchantIdRoute
   '/notes/$noteId': typeof NotesNoteIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/quiz/$quizId': typeof QuizQuizIdRoute
   '/chat': typeof ChatIndexRoute
+  '/flashcard': typeof FlashcardIndexRoute
   '/notes': typeof NotesIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/quiz': typeof QuizIndexRoute
@@ -397,11 +427,13 @@ export interface FileRoutesByTo {
   '/terms-of-service': typeof TermsOfServiceRoute
   '/chat/$noteId': typeof ChatNoteIdRoute
   '/course/$id': typeof CourseIdRoute
+  '/flashcard/$deckId': typeof FlashcardDeckIdRoute
   '/merchant/$id': typeof MerchantIdRoute
   '/notes/$noteId': typeof NotesNoteIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/quiz/$quizId': typeof QuizQuizIdRoute
   '/chat': typeof ChatIndexRoute
+  '/flashcard': typeof FlashcardIndexRoute
   '/notes': typeof NotesIndexRoute
   '/posts': typeof PostsIndexRoute
   '/quiz': typeof QuizIndexRoute
@@ -424,11 +456,13 @@ export interface FileRoutesById {
   '/terms-of-service': typeof TermsOfServiceRoute
   '/chat/$noteId': typeof ChatNoteIdRoute
   '/course/$id': typeof CourseIdRoute
+  '/flashcard/$deckId': typeof FlashcardDeckIdRoute
   '/merchant/$id': typeof MerchantIdRoute
   '/notes/$noteId': typeof NotesNoteIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/quiz/$quizId': typeof QuizQuizIdRoute
   '/chat/': typeof ChatIndexRoute
+  '/flashcard/': typeof FlashcardIndexRoute
   '/notes/': typeof NotesIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/quiz/': typeof QuizIndexRoute
@@ -452,11 +486,13 @@ export interface FileRouteTypes {
     | '/terms-of-service'
     | '/chat/$noteId'
     | '/course/$id'
+    | '/flashcard/$deckId'
     | '/merchant/$id'
     | '/notes/$noteId'
     | '/posts/$postId'
     | '/quiz/$quizId'
     | '/chat'
+    | '/flashcard'
     | '/notes'
     | '/posts/'
     | '/quiz'
@@ -476,11 +512,13 @@ export interface FileRouteTypes {
     | '/terms-of-service'
     | '/chat/$noteId'
     | '/course/$id'
+    | '/flashcard/$deckId'
     | '/merchant/$id'
     | '/notes/$noteId'
     | '/posts/$postId'
     | '/quiz/$quizId'
     | '/chat'
+    | '/flashcard'
     | '/notes'
     | '/posts'
     | '/quiz'
@@ -501,11 +539,13 @@ export interface FileRouteTypes {
     | '/terms-of-service'
     | '/chat/$noteId'
     | '/course/$id'
+    | '/flashcard/$deckId'
     | '/merchant/$id'
     | '/notes/$noteId'
     | '/posts/$postId'
     | '/quiz/$quizId'
     | '/chat/'
+    | '/flashcard/'
     | '/notes/'
     | '/posts/'
     | '/quiz/'
@@ -528,10 +568,12 @@ export interface RootRouteChildren {
   TermsOfServiceRoute: typeof TermsOfServiceRoute
   ChatNoteIdRoute: typeof ChatNoteIdRoute
   CourseIdRoute: typeof CourseIdRoute
+  FlashcardDeckIdRoute: typeof FlashcardDeckIdRoute
   MerchantIdRoute: typeof MerchantIdRoute
   NotesNoteIdRoute: typeof NotesNoteIdRoute
   QuizQuizIdRoute: typeof QuizQuizIdRoute
   ChatIndexRoute: typeof ChatIndexRoute
+  FlashcardIndexRoute: typeof FlashcardIndexRoute
   NotesIndexRoute: typeof NotesIndexRoute
   QuizIndexRoute: typeof QuizIndexRoute
   PostsPostIdDeepRoute: typeof PostsPostIdDeepRoute
@@ -552,10 +594,12 @@ const rootRouteChildren: RootRouteChildren = {
   TermsOfServiceRoute: TermsOfServiceRoute,
   ChatNoteIdRoute: ChatNoteIdRoute,
   CourseIdRoute: CourseIdRoute,
+  FlashcardDeckIdRoute: FlashcardDeckIdRoute,
   MerchantIdRoute: MerchantIdRoute,
   NotesNoteIdRoute: NotesNoteIdRoute,
   QuizQuizIdRoute: QuizQuizIdRoute,
   ChatIndexRoute: ChatIndexRoute,
+  FlashcardIndexRoute: FlashcardIndexRoute,
   NotesIndexRoute: NotesIndexRoute,
   QuizIndexRoute: QuizIndexRoute,
   PostsPostIdDeepRoute: PostsPostIdDeepRoute,
@@ -585,10 +629,12 @@ export const routeTree = rootRoute
         "/terms-of-service",
         "/chat/$noteId",
         "/course/$id",
+        "/flashcard/$deckId",
         "/merchant/$id",
         "/notes/$noteId",
         "/quiz/$quizId",
         "/chat/",
+        "/flashcard/",
         "/notes/",
         "/quiz/",
         "/posts_/$postId/deep"
@@ -640,6 +686,9 @@ export const routeTree = rootRoute
     "/course/$id": {
       "filePath": "course.$id.tsx"
     },
+    "/flashcard/$deckId": {
+      "filePath": "flashcard.$deckId.tsx"
+    },
     "/merchant/$id": {
       "filePath": "merchant.$id.tsx"
     },
@@ -655,6 +704,9 @@ export const routeTree = rootRoute
     },
     "/chat/": {
       "filePath": "chat.index.tsx"
+    },
+    "/flashcard/": {
+      "filePath": "flashcard.index.tsx"
     },
     "/notes/": {
       "filePath": "notes.index.tsx"
