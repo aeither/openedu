@@ -1,12 +1,12 @@
 import { json } from '@tanstack/react-start'
 import { createAPIFileRoute } from '@tanstack/react-start/api'
-import { generateQuizTool } from '../../mastra/tools'
+import { generateQuizTool } from '@/mastra/tools'
 import { db } from '@/db/drizzle'
 import { notes, quizzes, users } from '@/db/schema'
 import { v4 as uuidv4 } from 'uuid'
 import { eq, desc } from 'drizzle-orm'
 
-export const APIRoute = createAPIFileRoute('/api/tg')({
+export const APIRoute = createAPIFileRoute('/api/tg/quiz')({
   GET: async ({ request, params }) => {
     try {
       // Get the chat_id from query parameter

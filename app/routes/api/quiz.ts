@@ -45,7 +45,7 @@ async function handleQuizGeneration({ request }: { request: Request }) {
     // Generate quiz using the tool
     const quizResponse = await generateQuizTool.execute({
       context: {
-        topic,
+        content: topic,
         count
       }
     });
