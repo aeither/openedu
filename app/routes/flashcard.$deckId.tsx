@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useTRPC } from '@/trpc/react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQuery } from '@tanstack/react-query';
@@ -30,6 +30,7 @@ function FlashcardDeckComponent() {
   const trpc = useTRPC();
   const [current, setCurrent] = useState(0);
   const [showBack, setShowBack] = useState(false);
+  const [deckCompleted, setDeckCompleted] = useState(false);
 
   // Fetch flashcards using the query hook from tRPC
   const { data, isLoading, isError, error } = useQuery(
@@ -48,12 +49,22 @@ function FlashcardDeckComponent() {
   
   const handleNext = () => {
     if (!deckData) return;
-    setCurrent(c => Math.min(deckData.flashcards.length - 1, c + 1));
-    setShowBack(false);
+    if (current < deckData.flashcards.length - 1) {
+      setCurrent(c => c + 1);
+      setShowBack(false);
+    } else {
+      setDeckCompleted(true);
+    }
   };
 
   const handleBack = () => {
     navigate({ to: '/flashcard' });
+  };
+
+  const handleReplay = () => {
+    setDeckCompleted(false);
+    setCurrent(0);
+    setShowBack(false);
   };
 
   // Page header with back button - used in all states
@@ -136,6 +147,24 @@ function FlashcardDeckComponent() {
     );
   }
 
+  if (deckCompleted) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <PageHeader />
+        <Card className="max-w-lg mx-auto">
+          <CardHeader className="bg-primary/5 text-center">
+            <CardTitle>Deck Completed!</CardTitle>
+            <CardDescription>You have reviewed all the flashcards.</CardDescription>
+          </CardHeader>
+          <CardFooter className="flex justify-center space-x-4">
+            <Button onClick={handleReplay}>Replay Deck</Button>
+            <Button onClick={handleBack}>Back to Flashcards</Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
+
   const card = deckData.flashcards[current];
 
   return (
@@ -195,8 +224,8 @@ function FlashcardDeckComponent() {
           <Button variant="outline" size="sm" onClick={handleFlip}>
             Flip
           </Button>
-          <Button variant="outline" size="sm" onClick={handleNext} disabled={current === deckData.flashcards.length - 1}>
-            Next
+          <Button variant="outline" size="sm" onClick={handleNext}>
+            {current === deckData.flashcards.length - 1 ? 'Finish' : 'Next'}
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </CardFooter>
