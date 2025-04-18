@@ -7,15 +7,17 @@ on:
 
 jobs:
   deploy-trigger:
-    name: Deploy Trigger.dev
+    name: Deploy to Trigger.dev (prod)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - name: Deploy Trigger.dev tasks
+          node-version: '20.x'
+      - name: Install dependencies
+        run: npm install
+      - name: 🚀 Deploy Trigger.dev (prod)
         env:
           TRIGGER_SECRET_KEY: ${{ secrets.TRIGGER_SECRET_KEY }}
         run: npx trigger.dev@3.3.17 deploy
