@@ -1,4 +1,10 @@
-import { logger, schedules, wait } from "@trigger.dev/sdk/v3";
+import { logger, schedules, wait, configure, task, schemaTask } from "@trigger.dev/sdk/v3";
+import { z } from "zod";
+
+// Initialize Trigger.dev client
+configure({
+  secretKey: process.env.TRIGGER_SECRET_KEY!,
+});
 
 export const firstScheduledTask = schedules.task({
   id: "first-scheduled-task",
@@ -23,5 +29,38 @@ export const firstScheduledTask = schedules.task({
     });
 
     logger.log(formatted);
+  },
+});
+
+const API_BASE_URL = "https://openedu.dailywiser.xyz";
+
+// Hello world task example
+export const helloWorldTask = schemaTask({
+  schema: z.object({
+    chatId: z.string(),
+    action: z.string(),
+    data: z.object({ message: z.string() }),
+  }),
+  id: 'hello-world-task',
+  run: async (payload) => {
+    // Wait for 5 seconds before executing
+    await wait.for({ seconds: 5 });
+
+    // Call our webhook endpoint
+    const url = `${API_BASE_URL}/api/webhook`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chatId: payload.chatId,
+        action: payload.action,
+        data: payload.data,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Webhook call failed with status ${response.status}`);
+    }
+    return response.json();
   },
 });

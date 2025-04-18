@@ -144,6 +144,20 @@ Share this message to help your friends learn more effectively!`;
     }
   });
 
+  // Test webhook command
+  bot.command("test_webhook", async (ctx) => {
+    try {
+      await trpc.triggerDev.call.mutate({
+        chatId: ctx.chat.id.toString(),
+        action: 'test_webhook',
+        data: { message: 'Hello from Trigger.dev' }
+      });
+      await ctx.reply("Webhook invoked successfully.");
+    } catch (error) {
+      console.error("Webhook test error:", error);
+      await ctx.reply("Failed to invoke webhook.");
+    }
+  });
 
   // Handle callback queries for quiz deletion
   bot.on("callback_query:data", async (ctx) => {
