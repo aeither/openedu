@@ -14,7 +14,7 @@ function Home() {
   const trpc = useTRPC();
   const { address, isConnected } = useAccount();
   const helloMutation = useMutation(
-    trpc.triggerDev.call.mutationOptions({
+    trpc.triggerDev.triggerHelloWorld.mutationOptions({
       onSuccess: (data) => console.log('helloWorldTask triggered', data),
       onError: (err) => console.error('Error triggering helloWorldTask:', err),
     })
