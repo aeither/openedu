@@ -15,12 +15,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-      - name: Install pnpm (workaround for trigger.dev CLI)
-        run: npm install -g pnpm@8
       - name: Deploy Trigger.dev tasks
         env:
           TRIGGER_SECRET_KEY: ${{ secrets.TRIGGER_SECRET_KEY }}
-        run: pnpm dlx trigger.dev@latest deploy
+        run: npx trigger.dev@3.3.17 deploy
 
   deploy-telegram:
     name: Deploy Telegram Bot
