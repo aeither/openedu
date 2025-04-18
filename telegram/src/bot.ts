@@ -159,6 +159,24 @@ Share this message to help your friends learn more effectively!`;
     }
   });
 
+  // Command to list Trigger.dev runs for the user
+  bot.command("list_tasks", async (ctx) => {
+    try {
+      const runs = await trpc.triggerDev.listUserTasks.query({
+        chatId: ctx.chat.id.toString()
+      });
+      if (runs.length === 0) {
+        await ctx.reply("No Trigger.dev tasks found for you.");
+      } else {
+        const lines = runs.map(run => `- ${run.id}: ${run.status}`);
+        await ctx.reply("Your Trigger.dev tasks:\n" + lines.join("\n"));
+      }
+    } catch (error) {
+      console.error("Error listing user tasks:", error);
+      await ctx.reply("Failed to list Trigger.dev tasks.");
+    }
+  });
+
   // Handle callback queries for quiz deletion
   bot.on("callback_query:data", async (ctx) => {
     const callbackData = ctx.callbackQuery.data;

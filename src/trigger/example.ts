@@ -1,4 +1,4 @@
-import { logger, schedules, wait, configure, task, schemaTask } from "@trigger.dev/sdk/v3";
+import { logger, schedules, wait, configure, task, schemaTask, runs } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
 
 // Initialize Trigger.dev client
@@ -64,3 +64,15 @@ export const helloWorldTask = schemaTask({
     return response.json();
   },
 });
+
+// Get all Trigger.dev runs for a specific user chatId
+export async function getUserTasks(chatId: string) {
+  const userRuns = [];
+  for await (const run of runs.list({ limit: 100 })) {
+    // Filter by chatId in payload
+    if ((run as any).payload?.chatId === chatId) {
+      userRuns.push(run);
+    }
+  }
+  return userRuns;
+}
