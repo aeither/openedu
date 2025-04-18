@@ -22,8 +22,15 @@ export function createBot(token: string) {
   // Create bot instance
   const bot = new Bot(token);
 
-  // Handle start command
-  bot.command("start", (ctx) => ctx.reply("Welcome to DailyWiser Bot! 🧠\n\nUse /quiz followed by your learning content to generate a quiz. For example:\n/quiz The Earth is the third planet from the Sun."));
+  // Handle start command - create user if not exists
+  bot.command("start", async (ctx) => {
+    try {
+      await trpc.user.createUser.mutate({ userAddress: String(ctx.chat.id) });
+    } catch (err) {
+      console.error("Error creating user:", err);
+    }
+    await ctx.reply("Welcome to DailyWiser Bot! 🧠\n\nUse /quiz followed by your learning content to generate a quiz. For example:\n/quiz The Earth is the third planet from the Sun.");
+  });
   
   // Handle quiz command
   bot.command("quiz", async (ctx) => {
