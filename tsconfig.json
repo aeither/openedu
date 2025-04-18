@@ -14,5 +14,10 @@
     },
     "types": ["vite/client"]
   },
-  "include": ["**/*.ts", "**/*.tsx", "vite.config.js"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "vite.config.js",
+    "trigger.config.ts"
+  ]
 }
