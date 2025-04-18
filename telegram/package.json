@@ -1,0 +1,30 @@
+{
+  "name": "cf-tg-bot",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "NODE_ENV=development bun run --watch dev.ts",
+    "dev:webhook": "bunx wrangler dev src/worker.ts",
+    "dev:ngrok": "ngrok http --domain=basically-enough-clam.ngrok-free.app 3000",
+    "deploy": "bunx wrangler deploy",
+    "secret": "wrangler secret put BOT_TOKEN"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250410.0",
+    "@types/bun": "latest",
+    "dotenv": "^16.5.0",
+    "wrangler": "^4.10.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@grammyjs/types": "^3.19.0",
+    "@types/json2csv": "^5.0.7",
+    "csv-parse": "^5.6.0",
+    "csv-stringify": "^6.5.2",
+    "grammy": "^1.35.1",
+    "json2csv": "^6.0.0-alpha.2"
+  }
+}
