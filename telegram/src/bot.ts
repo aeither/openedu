@@ -1,7 +1,13 @@
 import { Bot, InlineKeyboard } from "grammy";
+import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import superjson from 'superjson';
+import type { TRPCRouter } from '../../app/trpc/router';
 
 // API URL for the backend service - can be used across multiple functions
 const API_BASE_URL = "https://openedu.dailywiser.xyz";
+const trpc = createTRPCClient<TRPCRouter>({
+  links: [httpBatchLink({ url: `${API_BASE_URL}/api/trpc`, transformer: superjson })],
+});
 
 // Define interface for quiz objects returned from API
 interface UserQuiz {
@@ -118,6 +124,19 @@ Share this message to help your friends learn more effectively!`;
       await ctx.reply("Sorry, I couldn't fetch your quizzes. Please try again later.");
     }
   });
+
+
+  // tRPC test command
+  bot.command("me", async (ctx) => {
+    try {
+      const result = await trpc.user.me.query();
+      await ctx.reply(`Hello, ${result.name}!`);
+    } catch (err) {
+      console.error("tRPC me error:", err);
+      await ctx.reply("Failed to fetch user info.");
+    }
+  });
+
 
   // Handle callback queries for quiz deletion
   bot.on("callback_query:data", async (ctx) => {
