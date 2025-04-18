@@ -147,7 +147,7 @@ Share this message to help your friends learn more effectively!`;
   // Test webhook command
   bot.command("test_webhook", async (ctx) => {
     try {
-      await trpc.triggerDev.call.mutate({
+      await trpc.triggerDev.triggerHelloWorld.mutate({
         chatId: ctx.chat.id.toString(),
         action: 'test_webhook',
         data: { message: 'Hello from Trigger.dev' }
