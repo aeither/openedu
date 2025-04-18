@@ -221,9 +221,7 @@ function FlashcardDeckComponent() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Previous
           </Button>
-          <Button variant="outline" size="sm" onClick={handleFlip}>
-            Flip
-          </Button>
+
           <Button variant="outline" size="sm" onClick={handleNext}>
             {current === deckData.flashcards.length - 1 ? 'Finish' : 'Next'}
             <ArrowRight className="h-4 w-4 ml-2" />
@@ -231,7 +229,7 @@ function FlashcardDeckComponent() {
         </CardFooter>
       </Card>
       <div className="mt-4 text-center text-muted-foreground">
-        Click on the card or "Flip" to view the answer.
+        Click on the card to view the answer.
       </div>
     </div>
   );
