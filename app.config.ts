@@ -11,5 +11,9 @@ export default defineConfig({
         projects: ['./tsconfig.json'],
       }),
     ],
+    // @ts-ignore - Adding allowedHosts for ngrok
+    server: {
+      allowedHosts: ["basically-enough-clam.ngrok-free.app"],
+    },
   },
 });
