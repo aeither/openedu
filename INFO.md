@@ -36,8 +36,19 @@ Flow: queue to receive a message tomorrow.
 Development
 - src/trigger: Define Task
 - app/trpc/routers/triggerDevRouter.ts: Put task in TRPC BE
-    - Take 3 mins to live
+    - Push to Github. Take 3 mins to live
 - telegram/src/bot.ts: Trigger task
+
+Test Log PROD
+- https://cloud.trigger.dev/
+- telegram bot response
+
+Test Log DEV
+- https://cloud.trigger.dev/
+
+pn dev
+pn dev:ngrok
+pn dev:telegram
 
 Test in local:
 - Run `pn dlx trigger.dev@latest dev`, Run `pn dev` + webhook (not implemented)

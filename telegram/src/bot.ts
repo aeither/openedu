@@ -4,7 +4,9 @@ import superjson from 'superjson';
 import type { TRPCRouter } from '../../app/trpc/router';
 
 // API URL for the backend service - can be used across multiple functions
-const API_BASE_URL = "https://openedu.dailywiser.xyz";
+const API_BASE_URL = process.env.NODE_ENV === "development"
+  ? "https://basically-enough-clam.ngrok-free.app"
+  : "https://openedu.dailywiser.xyz";
 const trpc = createTRPCClient<TRPCRouter>({
   links: [httpBatchLink({ url: `${API_BASE_URL}/api/trpc`, transformer: superjson })],
 });
