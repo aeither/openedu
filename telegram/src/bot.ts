@@ -159,6 +159,22 @@ Share this message to help your friends learn more effectively!`;
     }
   });
 
+  // Delayed webhook test command
+  bot.command("test_webhook_delayed", async (ctx) => {
+    try {
+      await trpc.triggerDev.triggerHelloWorldDelayed.mutate({
+        chatId: ctx.chat.id.toString(),
+        action: 'test_webhook_delayed',
+        data: { message: 'Hello from Trigger.dev delayed' },
+      });
+      await ctx.reply("Delayed webhook invoked successfully.");
+    } catch (error) {
+      console.error("Delayed webhook test error:", error);
+      await ctx.reply("Failed to invoke delayed webhook.");
+    }
+  });
+
+  // 
   // Command to list Trigger.dev runs for the user
   bot.command("list_tasks", async (ctx) => {
     try {

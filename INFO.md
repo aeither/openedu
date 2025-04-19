@@ -33,6 +33,11 @@ Flow: queue to receive a message tomorrow.
 3. trigger.dev call webhook endpoint
 4. Webhook endpoint use TRPC to send message to telegram chat
 
+Development
+- src/trigger: Define Task
+- app/trpc/routers/triggerDevRouter.ts: Put task in TRPC BE
+- telegram/src/bot.ts: Trigger task
+
 Test in local:
 - Run `pn dlx trigger.dev@latest dev`, Run `pn dev` + webhook (not implemented)
 Test in prod

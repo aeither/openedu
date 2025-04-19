@@ -65,6 +65,37 @@ export const helloWorldTask = schemaTask({
   },
 });
 
+// Task similar to helloWorldTask but waits for 5 minutes
+export const helloWorldDelayedTask = schemaTask({
+  schema: z.object({
+    chatId: z.string(),
+    action: z.string(),
+    data: z.object({ message: z.string() }),
+  }),
+  id: 'hello-world-delayed-task',
+  run: async (payload) => {
+    // Wait for 5 minutes before executing
+    await wait.for({ seconds: 300 });
+
+    // Call our webhook endpoint
+    const url = `${API_BASE_URL}/api/webhook`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chatId: payload.chatId,
+        action: payload.action,
+        data: payload.data,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Webhook call failed with status ${response.status}`);
+    }
+    return response.json();
+  },
+});
+
 // Get all Trigger.dev runs for a specific user chatId
 export async function getUserTasks(chatId: string) {
   const userRuns = [];

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../init";
-import { helloWorldTask, getUserTasks } from '../../../src/trigger/example';
+import { helloWorldTask, helloWorldDelayedTask, getUserTasks } from '../../../src/trigger/example';
 import { TRPCError } from '@trpc/server';
 
 export const triggerDevRouter = createTRPCRouter({
@@ -15,6 +15,19 @@ export const triggerDevRouter = createTRPCRouter({
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: error instanceof Error ? error.message : 'Trigger task failed',
+        });
+      }
+    }),
+  triggerHelloWorldDelayed: publicProcedure
+    .input(z.object({ chatId: z.string(), action: z.string(), data: z.object({ message: z.string() }) }))
+    .mutation(async ({ input }) => {
+      try {
+        return await helloWorldDelayedTask.trigger(input);
+      } catch (error) {
+        console.error('Error triggering helloWorldDelayedTask:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error instanceof Error ? error.message : 'Trigger delayed task failed',
         });
       }
     }),
