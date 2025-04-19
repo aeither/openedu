@@ -174,7 +174,7 @@ Share this message to help your friends learn more effectively!`;
     }
   });
 
-  // 
+
   // Command to retrieve latest Trigger.dev run for the user
   bot.command("get_task", async (ctx) => {
     try {
