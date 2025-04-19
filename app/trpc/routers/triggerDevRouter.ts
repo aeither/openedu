@@ -4,9 +4,10 @@ import { helloWorldTask, helloWorldDelayedTask } from '../../../src/trigger/exam
 import { scheduledQuizTask } from '../../../src/trigger/quizScheduler';
 import { TRPCError } from '@trpc/server';
 import { db } from '@/db/drizzle';
-import { users } from '@/db/schema';
+import { users, schedulers } from '@/db/schema';
 import { runs } from '@trigger.dev/sdk/v3';
 import { eq } from 'drizzle-orm';
+import { v4 as uuidv4 } from 'uuid';
 
 export const triggerDevRouter = createTRPCRouter({
   triggerHelloWorld: publicProcedure
@@ -15,9 +16,13 @@ export const triggerDevRouter = createTRPCRouter({
       try {
         // Trigger and store run ID
         const handle = await helloWorldTask.trigger(input);
-        await db.update(users)
-          .set({ triggerRunningId: handle.id })
-          .where(eq(users.address, input.chatId));
+        await db.insert(schedulers)
+          .values({
+            id: uuidv4(),
+            userAddress: input.chatId,
+            triggerRunningId: handle.id,
+            createdAt: new Date()
+          });
         return handle;
       } catch (error) {
         console.error('Error triggering helloWorldTask:', error);
@@ -33,9 +38,13 @@ export const triggerDevRouter = createTRPCRouter({
       try {
         // Trigger delayed task and store run ID
         const handle = await helloWorldDelayedTask.trigger(input);
-        await db.update(users)
-          .set({ triggerRunningId: handle.id })
-          .where(eq(users.address, input.chatId));
+        await db.insert(schedulers)
+          .values({
+            id: uuidv4(),
+            userAddress: input.chatId,
+            triggerRunningId: handle.id,
+            createdAt: new Date()
+          });
         return handle;
       } catch (error) {
         console.error('Error triggering helloWorldDelayedTask:', error);
@@ -61,10 +70,17 @@ export const triggerDevRouter = createTRPCRouter({
           currentDay: 1, // Start with day 1
         });
         
-        // Store the run ID for the user
-        await db.update(users)
-          .set({ triggerRunningId: handle.id })
-          .where(eq(users.address, input.chatId));
+        // Create a scheduler record
+        await db.insert(schedulers)
+          .values({
+            id: uuidv4(),
+            userAddress: input.chatId,
+            triggerRunningId: handle.id,
+            currentDay: 1,
+            totalDays: input.days,
+            content: input.content,
+            createdAt: new Date()
+          });
           
         return handle;
       } catch (error) {
@@ -79,15 +95,29 @@ export const triggerDevRouter = createTRPCRouter({
     .input(z.object({ chatId: z.string() }))
     .query(async ({ input }) => {
       try {
-        // Retrieve stored run ID for user
-        const user = await db.query.users.findFirst({
-          where: (u, { eq }) => eq(u.address, input.chatId)
+        // Find scheduler for this user
+        const schedulerEntry = await db.query.schedulers.findFirst({
+          where: (s, { eq }) => eq(s.userAddress, input.chatId),
+          orderBy: (s, { desc }) => [desc(s.createdAt)]
         });
-        if (!user?.triggerRunningId) {
-          throw new TRPCError({ code: 'NOT_FOUND', message: 'No run ID found for user' });
+        
+        if (!schedulerEntry?.triggerRunningId) {
+          // If no scheduler found, try the legacy approach
+          const user = await db.query.users.findFirst({
+            where: (u, { eq }) => eq(u.address, input.chatId)
+          });
+          
+          if (!user?.triggerRunningId) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'No run ID found for user' });
+          }
+          
+          // Fetch run details using legacy approach
+          const run = await runs.retrieve(user.triggerRunningId);
+          return run;
         }
-        // Fetch run details
-        const run = await runs.retrieve(user.triggerRunningId);
+        
+        // Fetch run details from scheduler
+        const run = await runs.retrieve(schedulerEntry.triggerRunningId);
         return run;
       } catch (error) {
         console.error("Error retrieving user run:", error);

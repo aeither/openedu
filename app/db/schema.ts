@@ -7,8 +7,28 @@ export const users = pgTable("users", {
   lastActive: timestamp("last_active", { withTimezone: true }),
   totalCredits: numeric("total_credits").default("0"),
   xp: numeric("xp").default("0"),
-  triggerRunningId: text("trigger_running_id"),
 });
+
+// Define the schedulers table
+export const schedulers = pgTable("schedulers", {
+  id: uuid("id").primaryKey(),
+  userAddress: text("user_address")
+    .notNull()
+    .references(() => users.address, { onDelete: "cascade" }),
+  triggerRunningId: text("trigger_running_id"),
+  currentDay: integer("current_day"),
+  totalDays: integer("total_days"),
+  content: text("content"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Define relations for the schedulers table
+export const schedulersRelations = relations(schedulers, ({ one }) => ({
+  user: one(users, {
+    fields: [schedulers.userAddress],
+    references: [users.address],
+  }),
+}));
 
 // Define the notes table
 export const notes = pgTable("notes", {
@@ -69,3 +89,4 @@ export type User = typeof users.$inferSelect;
 export type Note = typeof notes.$inferSelect;
 export type Quiz = typeof quizzes.$inferSelect;
 export type Flashcard = typeof flashcards.$inferSelect;
+export type Scheduler = typeof schedulers.$inferSelect;

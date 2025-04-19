@@ -1,5 +1,8 @@
 import { schedules, wait, configure, schemaTask } from "@trigger.dev/sdk/v3";
 import { z } from "zod";
+import { db } from '@/db/drizzle';
+import { schedulers } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 // Initialize Trigger.dev client
 configure({
@@ -18,6 +21,25 @@ export const scheduledQuizTask = schemaTask({
   }),
   id: 'scheduled-quiz-task',
   run: async (payload): Promise<any> => {
+    // Update the scheduler in the database if it exists
+    try {
+      const scheduler = await db.query.schedulers.findFirst({
+        where: (s, { eq, and }) => and(
+          eq(s.userAddress, payload.chatId),
+          eq(s.content, payload.content)
+        )
+      });
+      
+      if (scheduler) {
+        // Update scheduler with current day
+        await db.update(schedulers)
+          .set({ currentDay: payload.currentDay })
+          .where(eq(schedulers.id, scheduler.id));
+      }
+    } catch (error) {
+      console.error("Error updating scheduler:", error);
+    }
+    
     // Generate and send quiz for the current day
     // Call our webhook endpoint
     const url = `${API_BASE_URL}/api/webhook`;

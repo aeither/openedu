@@ -22,6 +22,13 @@
       "when": 1745056114521,
       "tag": "0002_skinny_cardiac",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1745077072792,
+      "tag": "0003_giant_miracleman",
+      "breakpoints": true
     }
   ]
 }
