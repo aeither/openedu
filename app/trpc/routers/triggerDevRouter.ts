@@ -102,18 +102,7 @@ export const triggerDevRouter = createTRPCRouter({
         });
         
         if (!schedulerEntry?.triggerRunningId) {
-          // If no scheduler found, try the legacy approach
-          const user = await db.query.users.findFirst({
-            where: (u, { eq }) => eq(u.address, input.chatId)
-          });
-          
-          if (!user?.triggerRunningId) {
-            throw new TRPCError({ code: 'NOT_FOUND', message: 'No run ID found for user' });
-          }
-          
-          // Fetch run details using legacy approach
-          const run = await runs.retrieve(user.triggerRunningId);
-          return run;
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'No run ID found for user' });
         }
         
         // Fetch run details from scheduler
