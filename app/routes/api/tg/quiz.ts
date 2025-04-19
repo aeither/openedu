@@ -44,7 +44,7 @@ export const APIRoute = createAPIFileRoute('/api/tg/quiz')({
           createdAt: item.createdAt,
           // Generate quiz URL based on environment
           url: `${process.env.NODE_ENV === 'development' 
-            ? 'http://localhost:3000' 
+            ? 'https://basically-enough-clam.ngrok-free.app' 
             : 'https://openedu.dailywiser.xyz'}/quiz/${item.quiz.id}`
         }
       })
@@ -129,7 +129,7 @@ export const APIRoute = createAPIFileRoute('/api/tg/quiz')({
       
       // Generate quiz URL based on environment
       const baseUrl = process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:3000' 
+        ? 'https://basically-enough-clam.ngrok-free.app' 
         : 'https://openedu.dailywiser.xyz'
       const quizUrl = `${baseUrl}/quiz/${quizId}`
       

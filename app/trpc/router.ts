@@ -6,6 +6,7 @@ import { quizRouter } from "./routers/quizRouter";
 import { notesRouter } from "./routers/notesRouter";
 import { flashcardRouter } from "./routers/flashcardRouter";
 import { triggerDevRouter } from "./routers/triggerDevRouter";
+import { aiRouter } from "./routers/aiRouter";
 
 export const trpcRouter = createTRPCRouter({
   post: postRouter,
@@ -15,6 +16,7 @@ export const trpcRouter = createTRPCRouter({
   notes: notesRouter,
   flashcard: flashcardRouter,
   triggerDev: triggerDevRouter,
+  ai: aiRouter,
 });
 
 export type TRPCRouter = typeof trpcRouter;
