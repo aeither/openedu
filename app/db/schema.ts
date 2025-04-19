@@ -7,6 +7,7 @@ export const users = pgTable("users", {
   lastActive: timestamp("last_active", { withTimezone: true }),
   totalCredits: numeric("total_credits").default("0"),
   xp: numeric("xp").default("0"),
+  triggerRunningId: text("trigger_running_id"),
 });
 
 // Define the notes table

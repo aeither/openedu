@@ -175,21 +175,20 @@ Share this message to help your friends learn more effectively!`;
   });
 
   // 
-  // Command to list Trigger.dev runs for the user
-  bot.command("list_tasks", async (ctx) => {
+  // Command to retrieve latest Trigger.dev run for the user
+  bot.command("get_task", async (ctx) => {
     try {
-      const runs = await trpc.triggerDev.listUserTasks.query({
-        chatId: ctx.chat.id.toString()
+      const run = await trpc.triggerDev.listUserTasks.query({
+        chatId: ctx.chat.id.toString(),
       });
-      if (runs.length === 0) {
-        await ctx.reply("No Trigger.dev tasks found for you.");
-      } else {
-        const lines = runs.map(run => `- ${run.id}: ${run.status}`);
-        await ctx.reply("Your Trigger.dev tasks:\n" + lines.join("\n"));
-      }
+      await ctx.reply(
+        `Run ID: ${run.id}\nStatus: ${run.status}\nOutput: ${JSON.stringify(run.output)}`
+      );
     } catch (error) {
-      console.error("Error listing user tasks:", error);
-      await ctx.reply("Failed to list Trigger.dev tasks.");
+      console.error("Error retrieving user task:", error);
+      await ctx.reply(
+        "Failed to retrieve task. Make sure you've triggered a task first."
+      );
     }
   });
 

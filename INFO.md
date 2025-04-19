@@ -36,6 +36,7 @@ Flow: queue to receive a message tomorrow.
 Development
 - src/trigger: Define Task
 - app/trpc/routers/triggerDevRouter.ts: Put task in TRPC BE
+    - Take 3 mins to live
 - telegram/src/bot.ts: Trigger task
 
 Test in local:
