@@ -33,8 +33,16 @@ export const scheduledQuizTask = schemaTask({
       if (scheduler) {
         // Update scheduler with current day
         await db.update(schedulers)
-          .set({ currentDay: payload.currentDay })
+          .set({ 
+            currentDay: payload.currentDay,
+            status: payload.currentDay >= payload.days ? "completed" : "running"
+          })
           .where(eq(schedulers.id, scheduler.id));
+        
+        // Log the status update
+        if (payload.currentDay >= payload.days) {
+          console.log(`Quiz series complete in trigger task. Marking scheduler ${scheduler.id} as completed`);
+        }
       }
     } catch (error) {
       console.error("Error updating scheduler:", error);

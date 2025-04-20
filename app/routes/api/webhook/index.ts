@@ -2,10 +2,8 @@ import { createAPIFileRoute } from '@tanstack/react-start/api';
 import { db } from '@/db/drizzle';
 import { users, notes, quizzes, schedulers } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { generateObject } from 'ai';
-import { groq } from '@ai-sdk/groq';
+import { generateQuizTool } from '@/mastra/tools';
 import { v4 as uuidv4 } from 'uuid';
-import { z } from 'zod';
 
 // Helper function to get base URL based on environment
 const getBaseUrl = () => 
@@ -36,44 +34,6 @@ async function scheduleNextQuiz(chatId: string, content: string, days: number) {
     console.error("Error scheduling next quiz:", error);
     return null;
   }
-}
-
-// Helper function to generate quiz questions
-async function generateQuizQuestions(content: string) {
-  return generateObject({
-    model: groq("llama-3.3-70b-versatile"),
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a teacher. Your job is to take a document, and create a multiple choice test (with 4 questions) based on the content of the document. Each option should be roughly equal in length. For each question, also include a brief explanation of why the correct answer is correct.",
-      },
-      {
-        role: "user",
-        content: `Create 4 multiple choice quiz questions based on the following content:\n\n${content}`
-      }
-    ],
-    output: 'array',
-    schema: z.object({
-      question: z.string(),
-      options: z
-        .array(z.string())
-        .length(4)
-        .describe(
-          "Four possible answers to the question. Only one should be correct. They should all be of equal lengths.",
-        ),
-      answer: z
-        .enum(["A", "B", "C", "D"])
-        .describe(
-          "The correct answer, where A is the first option, B is the second, and so on.",
-        ),
-      explanation: z
-        .string()
-        .describe(
-          "A brief explanation of why the correct answer is correct."
-        ),
-    }),
-  });
 }
 
 // Helper function to send Telegram message
@@ -152,7 +112,12 @@ async function handleQuizGeneration(payload: { chatId: string; action: string; d
   const quizId = await createAndStoreQuiz(userAddress, message);
   
   // Format a nice message for quiz generation
-  const text = `Your quiz is ready! Click the button below to start:`;
+  let text;
+  if (day === totalDays) {
+    text = `🎉 Final Quiz in Series! Click the button below to complete your journey:`;
+  } else {
+    text = `Your quiz is ready! Click the button below to start:`;
+  }
   const quizUrl = `${getBaseUrl()}/quiz/${quizId}`;
   
   // Send quiz to user
@@ -181,7 +146,11 @@ async function updateSchedulerForQuiz(userAddress: string, content: string, day:
     
     // Handle end of series or schedule next quiz
     if (day >= totalDays) {
-      await db.delete(schedulers).where(eq(schedulers.id, scheduler.id));
+      console.log(`Quiz series complete for user ${userAddress}, content: ${content}. Marking scheduler ${scheduler.id} as completed`);
+      // Update status to completed instead of deleting
+      await db.update(schedulers)
+        .set({ status: "completed" })
+        .where(eq(schedulers.id, scheduler.id));
     } else {
       await scheduleNextQuiz(userAddress, content, totalDays);
     }
@@ -196,7 +165,8 @@ async function updateSchedulerForQuiz(userAddress: string, content: string, day:
       currentDay: day,
       totalDays: totalDays,
       content: content,
-      createdAt: new Date(),
+      status: "running",
+      createdAt: new Date()
     });
   }
 }
@@ -213,19 +183,26 @@ async function createAndStoreQuiz(userAddress: string, content: string) {
         userAddress: `telegram:${userAddress}`,
         content: content,
         createdAt: new Date(),
+        updatedAt: new Date(),
       })
       .returning();
       
-    // Generate quiz questions
-    const quizData = await generateQuizQuestions(content);
+    // Generate quiz questions using the existing tool
+    const quizData = await generateQuizTool.execute?.({
+      context: {
+        content,
+        count: 4
+      }
+    }) || { questions: [] };
     
     // Store the quiz data
     const [newQuiz] = await db.insert(quizzes)
       .values({
         id: quizId,
         noteId: newNote.id,
-        quizData: { questions: quizData.object },
+        quizData: quizData,
         createdAt: new Date(),
+        updatedAt: new Date(),
       })
       .returning();
       

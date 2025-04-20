@@ -29,6 +29,13 @@
       "when": 1745077072792,
       "tag": "0003_giant_miracleman",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1745124643252,
+      "tag": "0004_freezing_agent_brand",
+      "breakpoints": true
     }
   ]
 }

@@ -260,13 +260,27 @@ Share this message to help your friends learn more effectively!`;
         await ctx.reply(`Creating a ${days}-day quiz series about: ${evaluation.content}`);
         
         // Trigger the scheduled quiz task
-        await trpc.triggerDev.triggerScheduledQuiz.mutate({
-          chatId: ctx.chat.id.toString(),
-          content: evaluation.content,
-          days
-        });
-        
-        await ctx.reply(`Your quiz series has been scheduled! You'll receive your first quiz soon, followed by one quiz per day for ${days} days.`);
+        try {
+          await trpc.triggerDev.triggerScheduledQuiz.mutate({
+            chatId: ctx.chat.id.toString(),
+            content: evaluation.content,
+            days
+          });
+          
+          await ctx.reply(`Your quiz series has been scheduled! You'll receive your first quiz soon, followed by one quiz per day for ${days} days.`);
+        } catch (error: unknown) {
+          // Check if this is the existing quiz series error
+          const errorMessage = error instanceof Error ? error.message : 
+                              typeof error === 'object' && error !== null && 'message' in error 
+                              ? String(error.message) : 'Unknown error';
+                              
+          if (errorMessage.includes("You already have an active quiz series")) {
+            await ctx.reply(errorMessage);
+          } else {
+            console.error("Error scheduling quiz series:", error);
+            await ctx.reply("Sorry, I couldn't schedule your quiz series. Please try again later.");
+          }
+        }
       } 
       else if (evaluation.intent === "quiz_now") {
         // User wants an immediate quiz

@@ -19,6 +19,7 @@ export const schedulers = pgTable("schedulers", {
   currentDay: integer("current_day"),
   totalDays: integer("total_days"),
   content: text("content"),
+  status: text("status").default("running").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

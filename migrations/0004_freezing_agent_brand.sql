@@ -1,0 +1,1 @@
+ALTER TABLE "schedulers" ADD COLUMN "status" text DEFAULT 'running' NOT NULL;

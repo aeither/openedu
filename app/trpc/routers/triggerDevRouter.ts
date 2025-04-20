@@ -6,7 +6,7 @@ import { TRPCError } from '@trpc/server';
 import { db } from '@/db/drizzle';
 import { users, schedulers } from '@/db/schema';
 import { runs } from '@trigger.dev/sdk/v3';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 
 export const triggerDevRouter = createTRPCRouter({
@@ -64,7 +64,10 @@ export const triggerDevRouter = createTRPCRouter({
       try {
         // Check if the user already has an active scheduler
         const existingScheduler = await db.query.schedulers.findFirst({
-          where: (s, { eq }) => eq(s.userAddress, input.chatId),
+          where: (s, { eq, and }) => and(
+            eq(s.userAddress, input.chatId),
+            eq(s.status, "running")
+          ),
         });
         
         if (existingScheduler) {
@@ -145,8 +148,22 @@ export const triggerDevRouter = createTRPCRouter({
         if (schedulerEntry.triggerRunningId) {
           try {
             const run = await runs.retrieve(schedulerEntry.triggerRunningId);
-            scheduleInfo.status = run.status;
+            scheduleInfo.status = schedulerEntry.status || run.status;
             scheduleInfo.nextRunTime = run.output?.nextRunTime;
+            
+            // Check if run is completed but scheduler hasn't been marked completed
+            if (run.status === "COMPLETED" && 
+                (((schedulerEntry.currentDay || 0) >= (schedulerEntry.totalDays || 0)) || !run.output?.nextRunTime) && 
+                schedulerEntry.status === "running") {
+              console.log("Marking scheduler as completed:", schedulerEntry.id);
+              // Update status to completed
+              await db.update(schedulers)
+                .set({ status: "completed" })
+                .where(eq(schedulers.id, schedulerEntry.id));
+                
+              // Update local status for response
+              scheduleInfo.status = "completed";
+            }
           } catch (runError) {
             console.error("Error retrieving run details:", runError);
             scheduleInfo.status = "UNKNOWN";
