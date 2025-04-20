@@ -116,7 +116,7 @@ async function handler({ request }: { request: Request }) {
     } 
     
     // Handle other actions with default messaging
-    const text = payload.action + (payload.data ? `: ${JSON.stringify(payload.data)}` : '');
+    const text = `Your request is being processed: ${payload.action}`;
     await sendTelegramMessage(payload.chatId, text);
     
     return new Response(JSON.stringify({ success: true }), {
@@ -152,7 +152,7 @@ async function handleQuizGeneration(payload: { chatId: string; action: string; d
   const quizId = await createAndStoreQuiz(userAddress, message);
   
   // Format a nice message for quiz generation
-  const text = `📚 Daily Quiz ${day}/${totalDays} 📚\n\nHere's your quiz for today on: ${message}\n\nClick the link below to take your quiz!`;
+  const text = `Your quiz is ready! Click the button below to start:`;
   const quizUrl = `${getBaseUrl()}/quiz/${quizId}`;
   
   // Send quiz to user

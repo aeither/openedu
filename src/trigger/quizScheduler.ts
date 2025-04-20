@@ -64,7 +64,8 @@ export const scheduledQuizTask = schemaTask({
     // If we haven't reached the last day, schedule the next quiz
     if (payload.currentDay < payload.days) {
       // Schedule next day's quiz (after 24 hours)
-      await wait.for({ seconds: 86400 }); // 24 hours in seconds
+      await wait.for({ seconds: 10 }); // Reduced to 10 seconds for testing
+      // await wait.for({ seconds: 86400 }); // 24 hours in seconds
       
       // Trigger the next quiz in sequence
       return scheduledQuizTask.trigger({

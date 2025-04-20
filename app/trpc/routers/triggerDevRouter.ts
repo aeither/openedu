@@ -55,13 +55,26 @@ export const triggerDevRouter = createTRPCRouter({
       }
     }),
   triggerScheduledQuiz: publicProcedure
-    .input(z.object({ 
-      chatId: z.string(), 
+    .input(z.object({
+      chatId: z.string(),
       content: z.string(),
       days: z.number()
     }))
     .mutation(async ({ input }) => {
       try {
+        // Check if the user already has an active scheduler
+        const existingScheduler = await db.query.schedulers.findFirst({
+          where: (s, { eq }) => eq(s.userAddress, input.chatId),
+        });
+        
+        if (existingScheduler) {
+          // User already has an active scheduler
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `You already have an active quiz series about "${existingScheduler.content}" (Day ${existingScheduler.currentDay}/${existingScheduler.totalDays}). Please complete it before starting a new one.`,
+          });
+        }
+        
         // Start the scheduled quiz series with day 1
         const handle = await scheduledQuizTask.trigger({
           chatId: input.chatId,
@@ -91,7 +104,7 @@ export const triggerDevRouter = createTRPCRouter({
         });
       }
     }),
-  listUserTasks: publicProcedure
+  getUserSchedule: publicProcedure
     .input(z.object({ chatId: z.string() }))
     .query(async ({ input }) => {
       try {
@@ -101,18 +114,51 @@ export const triggerDevRouter = createTRPCRouter({
           orderBy: (s, { desc }) => [desc(s.createdAt)]
         });
         
-        if (!schedulerEntry?.triggerRunningId) {
-          throw new TRPCError({ code: 'NOT_FOUND', message: 'No run ID found for user' });
+        if (!schedulerEntry) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'No active quiz schedule found' });
         }
         
-        // Fetch run details from scheduler
-        const run = await runs.retrieve(schedulerEntry.triggerRunningId);
-        return run;
+        // Format the schedule information with proper type safety
+        const scheduleInfo: {
+          runId: string | null;
+          content: string | null;
+          progress: {
+            currentDay: number;
+            totalDays: number;
+            percentComplete: number;
+          };
+          startedAt: Date;
+          status?: string;
+          nextRunTime?: string;
+        } = {
+          runId: schedulerEntry.triggerRunningId,
+          content: schedulerEntry.content,
+          progress: {
+            currentDay: schedulerEntry.currentDay || 1,
+            totalDays: schedulerEntry.totalDays || 1,
+            percentComplete: Math.round(((schedulerEntry.currentDay || 1) / (schedulerEntry.totalDays || 1)) * 100)
+          },
+          startedAt: schedulerEntry.createdAt,
+        };
+        
+        // If there's a trigger ID, get more details from Trigger.dev
+        if (schedulerEntry.triggerRunningId) {
+          try {
+            const run = await runs.retrieve(schedulerEntry.triggerRunningId);
+            scheduleInfo.status = run.status;
+            scheduleInfo.nextRunTime = run.output?.nextRunTime;
+          } catch (runError) {
+            console.error("Error retrieving run details:", runError);
+            scheduleInfo.status = "UNKNOWN";
+          }
+        }
+        
+        return scheduleInfo;
       } catch (error) {
-        console.error("Error retrieving user run:", error);
+        console.error("Error retrieving user schedule:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error instanceof Error ? error.message : "Retrieving user run failed",
+          message: error instanceof Error ? error.message : "Retrieving user schedule failed",
         });
       }
     }),

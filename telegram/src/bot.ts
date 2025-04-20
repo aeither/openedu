@@ -180,16 +180,25 @@ Share this message to help your friends learn more effectively!`;
   // Command to retrieve latest Trigger.dev run for the user
   bot.command("get_task", async (ctx) => {
     try {
-      const run = await trpc.triggerDev.listUserTasks.query({
+      const schedule = await trpc.triggerDev.getUserSchedule.query({
         chatId: ctx.chat.id.toString(),
       });
-      await ctx.reply(
-        `Run ID: ${run.id}\nStatus: ${run.status}\nOutput: ${JSON.stringify(run.output)}`
-      );
+      
+      // Format a user-friendly message
+      const progressPercent = schedule.progress.percentComplete;
+      const formattedDate = new Date(schedule.startedAt).toLocaleDateString();
+      
+      const message = `📚 Quiz Schedule Info 📚\n\n` +
+        `Topic: ${schedule.content}\n` +
+        `Progress: Day ${schedule.progress.currentDay} of ${schedule.progress.totalDays} (${progressPercent}%)\n` +
+        `Started: ${formattedDate}\n` +
+        `Status: ${schedule.status || 'Active'}\n`;
+      
+      await ctx.reply(message);
     } catch (error) {
-      console.error("Error retrieving user task:", error);
+      console.error("Error retrieving quiz schedule:", error);
       await ctx.reply(
-        "Failed to retrieve task. Make sure you've triggered a task first."
+        "You don't have any active quiz schedules. To create one, tell me what you'd like to learn about."
       );
     }
   });
@@ -235,7 +244,7 @@ Share this message to help your friends learn more effectively!`;
       // Skip command messages
       if (message.startsWith("/")) return;
       
-      await ctx.reply("Analyzing your message...");
+      await ctx.reply("Thinking...");
       
       // Use AI to evaluate the message intent
       const evaluation = await trpc.ai.evaluateMessage.mutate({
