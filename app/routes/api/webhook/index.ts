@@ -43,15 +43,19 @@ async function sendTelegramMessage(chatId: string, text: string, quizUrl?: strin
     text
   };
   
-  if (quizUrl) {
+  // Always check if quizUrl is defined and non-empty
+  if (quizUrl && quizUrl.trim() !== "") {
     messageData.reply_markup = {
       inline_keyboard: [
         [{ text: "Take Quiz", url: quizUrl }]
       ]
     };
+  } else if (quizUrl) {
+    // If quizUrl is empty string, log a warning
+    console.warn("quizUrl provided but empty, not adding button.");
   }
   
-  await fetch(
+  const resp = await fetch(
     `https://api.telegram.org/bot${process.env.TG_BOT_TOKEN}/sendMessage`,
     {
       method: 'POST',
@@ -59,6 +63,11 @@ async function sendTelegramMessage(chatId: string, text: string, quizUrl?: strin
       body: JSON.stringify(messageData),
     }
   );
+  const data = await resp.json();
+  if (!resp.ok) {
+    console.error('Telegram API error:', data);
+    throw new Error(data.description || 'Failed to send Telegram message');
+  }
 }
 
 // Main handler function
@@ -118,6 +127,7 @@ async function handleQuizGeneration(payload: { chatId: string; action: string; d
   } else {
     text = `Your quiz is ready! Click the button below to start:`;
   }
+  // Always construct the quizUrl
   const quizUrl = `${getBaseUrl()}/quiz/${quizId}`;
   
   // Send quiz to user
