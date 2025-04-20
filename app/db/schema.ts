@@ -20,6 +20,7 @@ export const schedulers = pgTable("schedulers", {
   totalDays: integer("total_days"),
   content: text("content"),
   status: text("status").default("running").notNull(),
+  breakdown: jsonb("breakdown").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -248,6 +248,66 @@ export const generateQuizTool = createTool({
   }
 });
 
+// Tool to break down content into daily subtopics
+export const generateBreakdownTool = createTool({
+  id: 'generateBreakdownTool',
+  description: 'Break down content into subtopics for each day',
+  inputSchema: z.object({
+    content: z.string().describe('Full content to split'),
+    totalDays: z.number().describe('Number of days')
+  }),
+  outputSchema: z.object({
+    breakdown: z.array(z.string()).describe('Array of daily subtopics')
+  }),
+  execute: async ({ context }) => {
+    const { content, totalDays } = context;
+    const result = await generateObject({
+      model: groq("llama-3.3-70b-versatile"),
+      messages: [
+        { role: 'system', content: 'You are a teacher. Break down the following content into the specified number of subtopics, one per day.' },
+        { role: 'user', content: `Break down this content into ${totalDays} subtopics for daily lessons:\n\n${content}` }
+      ],
+      output: 'array',
+      schema: z.string().describe('Daily subtopic')
+    });
+    return { breakdown: result.object.slice(0, totalDays) };
+  }
+});
+
+// Schema for a single quiz question
+const questionSchema = z.object({
+  question: z.string(),
+  options: z.array(z.string()).length(4).describe('Four possible answers'),
+  answer: z.enum(["A","B","C","D"]).describe('Correct answer'),
+  explanation: z.string().describe('Explanation for correct answer')
+});
+
+// Tool to generate a quiz for a specific daily subtopic
+export const generateDailyQuizTool = createTool({
+  id: 'generateDailyQuizTool',
+  description: 'Generate a multiple choice quiz for a given subtopic',
+  inputSchema: z.object({
+    topic: z.string().describe('Subtopic to quiz'),
+    count: z.number().optional().default(4).describe('Number of questions')
+  }),
+  outputSchema: z.object({
+    questions: z.array(questionSchema).describe('Array of generated quiz questions')
+  }),
+  execute: async ({ context }) => {
+    const { topic, count = 4 } = context;
+    const result = await generateObject({
+      model: groq("llama-3.3-70b-versatile"),
+      messages: [
+        { role: 'system', content: 'You are a teacher. Create a multiple choice quiz based on the following subtopic, ensuring equal-length options and explanations.' },
+        { role: 'user', content: `Generate ${count} multiple choice questions for this subtopic:\n\n${topic}` }
+      ],
+      output: 'array',
+      schema: questionSchema
+    });
+    return { questions: result.object.slice(0, count) };
+  }
+});
+
 // Tool for generating flashcards
 export const generateFlashcardTool = createTool({
   id: 'generateFlashcardTool',

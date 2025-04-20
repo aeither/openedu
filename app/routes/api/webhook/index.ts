@@ -2,7 +2,7 @@ import { createAPIFileRoute } from '@tanstack/react-start/api';
 import { db } from '@/db/drizzle';
 import { users, notes, quizzes, schedulers } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { generateQuizTool } from '@/mastra/tools';
+import { generateQuizTool, generateBreakdownTool, generateDailyQuizTool } from '@/mastra/tools';
 import { v4 as uuidv4 } from 'uuid';
 
 // Helper function to get base URL based on environment
@@ -114,11 +114,21 @@ async function handleQuizGeneration(payload: { chatId: string; action: string; d
     throw new Error(`User with address ${userAddress} not found`);
   }
   
-  // Handle scheduler management
+  // Handle scheduler management and breakdown
   await updateSchedulerForQuiz(userAddress, message, day, totalDays);
   
-  // Generate the quiz and prepare response
-  const quizId = await createAndStoreQuiz(userAddress, message);
+  // Fetch breakdown array and select today's topic
+  const sched = await db.query.schedulers.findFirst({
+    where: (s, { eq, and }) => and(
+      eq(s.userAddress, userAddress),
+      eq(s.content, message)
+    )
+  });
+  const rawBreakdown = sched?.breakdown;
+  const topics = Array.isArray(rawBreakdown) ? (rawBreakdown as string[]) : [message];
+  const topic = topics[day - 1] ?? message;
+  // Generate the quiz for today's topic
+  const quizId = await createAndStoreQuiz(userAddress, topic);
   
   // Format a nice message for quiz generation
   let text;
@@ -149,6 +159,13 @@ async function updateSchedulerForQuiz(userAddress: string, content: string, day:
   });
   
   if (scheduler) {
+    // Ensure breakdown stored on first run
+    if (!scheduler.breakdown || (Array.isArray(scheduler.breakdown) && scheduler.breakdown.length === 0)) {
+      const breakdownRes = await generateBreakdownTool.execute?.({ context: { content, totalDays } }) || { breakdown: [] };
+      await db.update(schedulers)
+        .set({ breakdown: breakdownRes.breakdown })
+        .where(eq(schedulers.id, scheduler.id));
+    }
     // Update existing scheduler
     await db.update(schedulers)
       .set({ currentDay: day })
@@ -165,9 +182,10 @@ async function updateSchedulerForQuiz(userAddress: string, content: string, day:
       await scheduleNextQuiz(userAddress, content, totalDays);
     }
   } else {
-    // Create new scheduler entry
+    // First run: generate breakdown and create scheduler
+    const breakdownRes = await generateBreakdownTool.execute?.({ context: { content, totalDays } }) || { breakdown: [] };
+    const breakdownArr: string[] = breakdownRes.breakdown;
     const triggerId = await scheduleNextQuiz(userAddress, content, totalDays);
-    
     await db.insert(schedulers).values({
       id: uuidv4(),
       userAddress: userAddress,
@@ -175,6 +193,7 @@ async function updateSchedulerForQuiz(userAddress: string, content: string, day:
       currentDay: day,
       totalDays: totalDays,
       content: content,
+      breakdown: breakdownArr,
       status: "running",
       createdAt: new Date()
     });
@@ -197,12 +216,9 @@ async function createAndStoreQuiz(userAddress: string, content: string) {
       })
       .returning();
       
-    // Generate quiz questions using the existing tool
-    const quizData = await generateQuizTool.execute?.({
-      context: {
-        content,
-        count: 4
-      }
+    // Generate quiz questions for the given topic
+    const quizData = await generateDailyQuizTool.execute?.({
+      context: { topic: content, count: 4 }
     }) || { questions: [] };
     
     // Store the quiz data
