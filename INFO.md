@@ -33,6 +33,9 @@ Flow: queue to receive a message tomorrow.
 3. trigger.dev call webhook endpoint
 4. Webhook endpoint use TRPC to send message to telegram chat
 
+V2 Approach
+Telegram use TRPC Client -> TRPC Router use Trigger.dev -> Trigger.dev use Drizzle, Mastra and TG Fetch
+
 Development
 - src/trigger: Define Task
 - app/trpc/routers/triggerDevRouter.ts: Put task in TRPC BE
@@ -54,3 +57,8 @@ Test in local:
 - Run `pn dlx trigger.dev@latest dev`, Run `pn dev` + webhook (not implemented)
 Test in prod
 - Run `pn dlx trigger.dev@latest deploy`, Commit and Push repo, Run `cd telegram` + `bun dev`
+
+## Why do I need
+
+TRPC for Trigger.dev: For Frontend and same call in telegram
+Mastra and DB in Trigger.dev, TRPC or Webhook BE: TRPC Before scheudling, Trigger.dev After easy approach, Webhook BE reduce cost??

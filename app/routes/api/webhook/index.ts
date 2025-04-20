@@ -2,7 +2,7 @@ import { createAPIFileRoute } from '@tanstack/react-start/api';
 import { db } from '@/db/drizzle';
 import { users, notes, quizzes, schedulers } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { generateQuizTool, generateBreakdownTool, generateDailyQuizTool } from '@/mastra/tools';
+import { generateQuizTool, generateDailyQuizTool } from '@/mastra/tools';
 import { v4 as uuidv4 } from 'uuid';
 
 // Helper function to get base URL based on environment
@@ -124,9 +124,13 @@ async function handleQuizGeneration(payload: { chatId: string; action: string; d
       eq(s.content, message)
     )
   });
-  const rawBreakdown = sched?.breakdown;
-  const topics = Array.isArray(rawBreakdown) ? (rawBreakdown as string[]) : [message];
+  
+  // Select today's topic from stored breakdown
+  const topics = Array.isArray(sched?.breakdown) && sched.breakdown.length > 0
+    ? sched.breakdown
+    : [message];
   const topic = topics[day - 1] ?? message;
+  
   // Generate the quiz for today's topic
   const quizId = await createAndStoreQuiz(userAddress, topic);
   
@@ -159,44 +163,20 @@ async function updateSchedulerForQuiz(userAddress: string, content: string, day:
   });
   
   if (scheduler) {
-    // Ensure breakdown stored on first run
-    if (!scheduler.breakdown || (Array.isArray(scheduler.breakdown) && scheduler.breakdown.length === 0)) {
-      const breakdownRes = await generateBreakdownTool.execute?.({ context: { content, totalDays } }) || { breakdown: [] };
-      await db.update(schedulers)
-        .set({ breakdown: breakdownRes.breakdown })
-        .where(eq(schedulers.id, scheduler.id));
-    }
-    // Update existing scheduler
+    // Update existing scheduler day
     await db.update(schedulers)
       .set({ currentDay: day })
       .where(eq(schedulers.id, scheduler.id));
-    
-    // Handle end of series or schedule next quiz
+
+    // Complete or schedule next quiz
     if (day >= totalDays) {
       console.log(`Quiz series complete for user ${userAddress}, content: ${content}. Marking scheduler ${scheduler.id} as completed`);
-      // Update status to completed instead of deleting
       await db.update(schedulers)
         .set({ status: "completed" })
         .where(eq(schedulers.id, scheduler.id));
     } else {
       await scheduleNextQuiz(userAddress, content, totalDays);
     }
-  } else {
-    // First run: generate breakdown and create scheduler
-    const breakdownRes = await generateBreakdownTool.execute?.({ context: { content, totalDays } }) || { breakdown: [] };
-    const breakdownArr: string[] = breakdownRes.breakdown;
-    const triggerId = await scheduleNextQuiz(userAddress, content, totalDays);
-    await db.insert(schedulers).values({
-      id: uuidv4(),
-      userAddress: userAddress,
-      triggerRunningId: triggerId,
-      currentDay: day,
-      totalDays: totalDays,
-      content: content,
-      breakdown: breakdownArr,
-      status: "running",
-      createdAt: new Date()
-    });
   }
 }
 

@@ -9,6 +9,7 @@
     "dev:ngrok": "ngrok http --domain=basically-enough-clam.ngrok-free.app 3000",
     "dev:telegram": "cd telegram && bun dev",
     "dev:all": "concurrently \"pnpm run dev\" \"pnpm run dev:trigger\" \"pnpm run dev:ngrok\" \"pnpm run dev:telegram\"",
+    "dev:open": "open https://cloud.trigger.dev/ https://railway.com/dashboard",
     "build": "vinxi build",
     "start": "vinxi start",
     "test-dev": "playwright test --project=dev",

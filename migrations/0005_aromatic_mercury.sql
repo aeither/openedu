@@ -1,0 +1,1 @@
+ALTER TABLE "schedulers" ADD COLUMN "breakdown" jsonb NOT NULL;

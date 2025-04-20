@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../init";
-import { helloWorldTask, helloWorldDelayedTask } from '../../../src/trigger/example';
 import { scheduledQuizTask } from '../../../src/trigger/quizScheduler';
+import { generateBreakdownTool } from '@/mastra/tools';
 import { TRPCError } from '@trpc/server';
 import { db } from '@/db/drizzle';
 import { users, schedulers } from '@/db/schema';
@@ -10,50 +10,6 @@ import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 
 export const triggerDevRouter = createTRPCRouter({
-  triggerHelloWorld: publicProcedure
-    .input(z.object({ chatId: z.string(), action: z.string(), data: z.object({ message: z.string() }) }))
-    .mutation(async ({ input }) => {
-      try {
-        // Trigger and store run ID
-        const handle = await helloWorldTask.trigger(input);
-        await db.insert(schedulers)
-          .values({
-            id: uuidv4(),
-            userAddress: input.chatId,
-            triggerRunningId: handle.id,
-            createdAt: new Date()
-          });
-        return handle;
-      } catch (error) {
-        console.error('Error triggering helloWorldTask:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: error instanceof Error ? error.message : 'Trigger task failed',
-        });
-      }
-    }),
-  triggerHelloWorldDelayed: publicProcedure
-    .input(z.object({ chatId: z.string(), action: z.string(), data: z.object({ message: z.string() }) }))
-    .mutation(async ({ input }) => {
-      try {
-        // Trigger delayed task and store run ID
-        const handle = await helloWorldDelayedTask.trigger(input);
-        await db.insert(schedulers)
-          .values({
-            id: uuidv4(),
-            userAddress: input.chatId,
-            triggerRunningId: handle.id,
-            createdAt: new Date()
-          });
-        return handle;
-      } catch (error) {
-        console.error('Error triggering helloWorldDelayedTask:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: error instanceof Error ? error.message : 'Trigger delayed task failed',
-        });
-      }
-    }),
   triggerScheduledQuiz: publicProcedure
     .input(z.object({
       chatId: z.string(),
@@ -87,6 +43,7 @@ export const triggerDevRouter = createTRPCRouter({
         });
         
         // Create a scheduler record
+        const breakdownRes = await generateBreakdownTool.execute?.({ context: { content: input.content, totalDays: input.days } }) || { breakdown: [] };
         await db.insert(schedulers)
           .values({
             id: uuidv4(),
@@ -95,6 +52,7 @@ export const triggerDevRouter = createTRPCRouter({
             currentDay: 1,
             totalDays: input.days,
             content: input.content,
+            breakdown: breakdownRes.breakdown,
             createdAt: new Date()
           });
           
