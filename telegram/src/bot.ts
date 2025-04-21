@@ -222,7 +222,8 @@ Share this message to help your friends learn more effectively!`;
     try {
       // Get the text content of the message
       const message = ctx.message.text;
-      
+      // Ignore messages originating from bots (e.g. scheduled quiz notifications)
+      if (ctx.from?.is_bot) return;
       // Skip command messages
       if (message.startsWith("/")) return;
       
