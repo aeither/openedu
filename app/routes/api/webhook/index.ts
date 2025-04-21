@@ -161,7 +161,7 @@ async function updateSchedulerForQuiz(userAddress: string, content: string, day:
       eq(s.content, content)
     )
   });
-  
+
   if (scheduler) {
     // Update existing scheduler day
     await db.update(schedulers)

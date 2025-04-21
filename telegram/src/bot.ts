@@ -163,7 +163,10 @@ Share this message to help your friends learn more effectively!`;
         `Started: ${formattedDate}\n` +
         `Status: ${schedule.status || 'Active'}\n`;
       
-      await ctx.reply(message);
+      // Provide a button to allow stopping the current quiz series
+      const keyboard = new InlineKeyboard()
+        .text("Complete quiz series", "complete_quiz_series");
+      await ctx.reply(message, { reply_markup: keyboard });
     } catch (error) {
       console.error("Error retrieving quiz schedule:", error);
       await ctx.reply(
