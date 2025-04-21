@@ -137,4 +137,29 @@ export const triggerDevRouter = createTRPCRouter({
         });
       }
     }),
+  // Complete an active quiz series so user can start a new one
+  completeScheduledQuiz: publicProcedure
+    .input(z.object({ chatId: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        // Find the active running scheduler
+        const existing = await db.query.schedulers.findFirst({
+          where: (s, { eq, and }) => and(
+            eq(s.userAddress, input.chatId),
+            eq(s.status, 'running')
+          )
+        });
+        if (!existing) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'No active quiz series to complete' });
+        }
+        // Mark it completed
+        await db.update(schedulers)
+          .set({ status: 'completed' })
+          .where(eq(schedulers.id, existing.id));
+        return { success: true };
+      } catch (error) {
+        console.error('Error completing scheduler:', error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to complete quiz series' });
+      }
+    }),
 });

@@ -146,37 +146,6 @@ Share this message to help your friends learn more effectively!`;
     }
   });
 
-  // Test webhook command
-  bot.command("test_webhook", async (ctx) => {
-    try {
-      await trpc.triggerDev.triggerHelloWorld.mutate({
-        chatId: ctx.chat.id.toString(),
-        action: 'test_webhook',
-        data: { message: 'Hello from Trigger.dev' }
-      });
-      await ctx.reply("Webhook invoked successfully.");
-    } catch (error) {
-      console.error("Webhook test error:", error);
-      await ctx.reply("Failed to invoke webhook.");
-    }
-  });
-
-  // Delayed webhook test command
-  bot.command("test_webhook_delayed", async (ctx) => {
-    try {
-      await trpc.triggerDev.triggerHelloWorldDelayed.mutate({
-        chatId: ctx.chat.id.toString(),
-        action: 'test_webhook_delayed',
-        data: { message: 'Hello from Trigger.dev delayed' },
-      });
-      await ctx.reply("Delayed webhook invoked successfully.");
-    } catch (error) {
-      console.error("Delayed webhook test error:", error);
-      await ctx.reply("Failed to invoke delayed webhook.");
-    }
-  });
-
-
   // Command to retrieve latest Trigger.dev run for the user
   bot.command("get_task", async (ctx) => {
     try {
@@ -232,6 +201,16 @@ Share this message to help your friends learn more effectively!`;
           text: "Failed to delete quiz. Please try again."
         });
       }
+    } else if (callbackData === "complete_quiz_series") {
+      try {
+        await trpc.triggerDev.completeScheduledQuiz.mutate({ chatId: ctx.chat!.id.toString() });
+        await ctx.answerCallbackQuery({ text: "Quiz series marked completed!" });
+        await ctx.reply("Your quiz series is now completed. You can start a new one.");
+      } catch (error) {
+        console.error("Error completing quiz series:", error);
+        await ctx.answerCallbackQuery({ text: "Failed to complete quiz series." });
+      }
+      return;
     }
   });
 
@@ -275,7 +254,10 @@ Share this message to help your friends learn more effectively!`;
                               ? String(error.message) : 'Unknown error';
                               
           if (errorMessage.includes("You already have an active quiz series")) {
-            await ctx.reply(errorMessage);
+            // Offer a button to complete the current quiz series
+            const keyboard = new InlineKeyboard()
+              .text("Mark series completed", "complete_quiz_series");
+            await ctx.reply(errorMessage, { reply_markup: keyboard });
           } else {
             console.error("Error scheduling quiz series:", error);
             await ctx.reply("Sorry, I couldn't schedule your quiz series. Please try again later.");

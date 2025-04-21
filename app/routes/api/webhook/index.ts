@@ -137,9 +137,9 @@ async function handleQuizGeneration(payload: { chatId: string; action: string; d
   // Format a nice message for quiz generation
   let text;
   if (day === totalDays) {
-    text = `🎉 Final Quiz in Series! Click the button below to complete your journey:`;
+    text = `🎉 Final Quiz (Day ${day}/${totalDays})! Click the button below to complete your journey:`;
   } else {
-    text = `Your quiz is ready! Click the button below to start:`;
+    text = `📚 Day ${day}/${totalDays} Quiz is ready! Click the button below to start:`;
   }
   // Always construct the quizUrl
   const quizUrl = `${getBaseUrl()}/quiz/${quizId}`;
