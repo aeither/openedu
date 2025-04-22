@@ -351,3 +351,38 @@ export const generateFlashcardTool = createTool({
     };
   }
 });
+
+// Tool to describe an image
+export const describeImageTool = createTool({
+  id: 'describeImageTool',
+  description: 'Analyzes an image from a URL and provides a concise description',
+  inputSchema: z.object({
+    imageUrl: z.string().url().describe('The URL of the image to describe')
+  }),
+  outputSchema: z.object({
+    description: z.string().describe('A concise description of the image content')
+  }),
+  execute: async ({ context }) => {
+    const { imageUrl } = context;
+
+    const result = await generateObject({
+      model: groq("meta-llama/llama-4-scout-17b-16e-instruct"), // Or another vision-capable model if available
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: "Describe this image concisely." },
+            { type: "image", image: new URL(imageUrl) },
+          ],
+        },
+      ],
+      schema: z.object({
+        description: z.string().describe('A concise description of the image content')
+      })
+    });
+
+    return {
+      description: result.object.description
+    };
+  }
+});

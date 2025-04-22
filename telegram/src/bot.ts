@@ -299,6 +299,32 @@ Share this message to help your friends learn more effectively!`;
     }
   });
 
+  // Handle photo messages
+  bot.on("message:photo", async (ctx) => {
+    // Get the highest resolution photo
+    const photo = ctx.message.photo[ctx.message.photo.length - 1];
+    
+    try {
+      // Get file info from Telegram
+      const file = await ctx.api.getFile(photo.file_id);
+      
+      // Build the download URL
+      const fileUrl = `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${file.file_path}`;
+      
+      // Let the user know we are processing
+      await ctx.reply("Analyzing the image...");
+
+      // Call the tRPC endpoint to describe the image
+      const result = await trpc.image.describeImage.mutate({ imageUrl: fileUrl });
+      
+      // Send result back to user
+      await ctx.reply(`Description: ${result.description}`);
+    } catch (error) {
+      console.error("Error handling photo message:", error);
+      await ctx.reply("Sorry, I couldn't analyze the image. Please try again later.");
+    }
+  });
+
   // Handle non-text messages
   bot.on("message", async (ctx) => {
     if (!ctx.message.text) {

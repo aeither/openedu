@@ -36,6 +36,8 @@ Flow: queue to receive a message tomorrow.
 V2 Approach
 Telegram use TRPC Client -> TRPC Router use Trigger.dev -> Trigger.dev use Drizzle, Mastra and TG Fetch
 
+PD: Trigger is needed to make it durable and delayable
+
 Development
 - src/trigger: Define Task
 - app/trpc/routers/triggerDevRouter.ts: Put task in TRPC BE
