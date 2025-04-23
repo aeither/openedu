@@ -1,5 +1,5 @@
-import { Bot, InlineKeyboard } from "grammy";
 import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import { Bot, InlineKeyboard } from "grammy";
 import superjson from 'superjson';
 import type { TRPCRouter } from '../../app/trpc/router';
 
@@ -27,7 +27,8 @@ export function createBot(token: string) {
   // Handle start command - create user if not exists
   bot.command("start", async (ctx) => {
     try {
-      await trpc.user.createUser.mutate({ userAddress: String(ctx.chat.id) });
+      const userAddress = `telegram:${ctx.chat.id}` // Use chatId as a unique identifier
+      await trpc.user.createUser.mutate({ userAddress });
     } catch (err) {
       console.error("Error creating user:", err);
     }
