@@ -42,12 +42,13 @@ export const triggerDevRouter = createTRPCRouter({
           currentDay: 1, // Start with day 1
         });
         
+        console.log("input", input);
         // Create a scheduler record
         const breakdownRes = await generateBreakdownTool.execute?.({ context: { content: input.content, totalDays: input.days } }) || { breakdown: [] };
         await db.insert(schedulers)
           .values({
             id: uuidv4(),
-            userAddress: input.chatId,
+            userAddress: `telegram:${input.chatId}`,
             triggerRunningId: handle.id,
             currentDay: 1,
             totalDays: input.days,
