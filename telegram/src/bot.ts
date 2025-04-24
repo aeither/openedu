@@ -32,7 +32,7 @@ export function createBot(token: string) {
     } catch (err) {
       console.error("Error creating user:", err);
     }
-    await ctx.reply("Welcome to DailyWiser Bot! 🧠\n\nUse /quiz followed by your learning content to generate a quiz. For example:\n/quiz The Earth is the third planet from the Sun.");
+    await ctx.reply(`Welcome to DailyWiser Bot! 🧠\n\nHere's how I can help you learn:\n\n• **Generate a quiz instantly:** Use \`/quiz <your learning content>\`.\n  *Example: \`/quiz The mitochondria is the powerhouse of the cell.\`*\n\n• **Schedule daily quizzes:** Just send me what you want to learn about (e.g., 'Teach me about photosynthesis for 5 days').\n\n• **Manage your quizzes:** Use \`/quizzes\` to see past quizzes and \`/status\` to check your scheduled series.\n\n• **Share:** Use \`/refer\` to share this bot with friends!\n\nSend any learning text or use a command to get started!`);
   });
   
   // Handle quiz command
@@ -297,13 +297,6 @@ Share this message to help your friends learn more effectively!`;
     } catch (error) {
       console.error("Error handling message:", error);
       await ctx.reply("Sorry, I encountered an error processing your request. Please try again later.");
-    }
-  });
-
-  // Handle non-text messages
-  bot.on("message", async (ctx) => {
-    if (!ctx.message.text) {
-      await ctx.reply("Welcome to DailyWiser! 🧠\n\nUse /quiz followed by your learning content to generate a quiz, or simply tell me what you'd like to learn about.");
     }
   });
 
