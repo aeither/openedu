@@ -1,5 +1,5 @@
-import { Bot, InlineKeyboard } from "grammy";
 import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import { Bot, InlineKeyboard } from "grammy";
 import superjson from 'superjson';
 import type { TRPCRouter } from '../../app/trpc/router';
 
@@ -27,11 +27,12 @@ export function createBot(token: string) {
   // Handle start command - create user if not exists
   bot.command("start", async (ctx) => {
     try {
-      await trpc.user.createUser.mutate({ userAddress: String(ctx.chat.id) });
+      const userAddress = `telegram:${ctx.chat.id}` // Use chatId as a unique identifier
+      await trpc.user.createUser.mutate({ userAddress });
     } catch (err) {
       console.error("Error creating user:", err);
     }
-    await ctx.reply("Welcome to DailyWiser Bot! 🧠\n\nUse /quiz followed by your learning content to generate a quiz. For example:\n/quiz The Earth is the third planet from the Sun.");
+    await ctx.reply(`Welcome to DailyWiser Bot! 🧠\n\nHere's how I can help you learn:\n\n• **Generate a quiz instantly:** Use \`/quiz <your learning content>\`.\n  *Example: \`/quiz The mitochondria is the powerhouse of the cell.\`*\n\n• **Schedule daily quizzes:** Just send me what you want to learn about (e.g., 'Teach me about photosynthesis for 5 days').\n\n• **Manage your quizzes:** Use \`/quizzes\` to see past quizzes and \`/status\` to check your scheduled series.\n\n• **Share:** Use \`/refer\` to share this bot with friends!\n\nSend any learning text or use a command to get started!`);
   });
   
   // Handle quiz command
