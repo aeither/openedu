@@ -1,10 +1,10 @@
-import { schedules, wait, configure, schemaTask } from "@trigger.dev/sdk/v3";
-import { z } from "zod";
 import { db } from '@/db/drizzle';
-import { users, notes, quizzes, schedulers } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { notes, quizzes, schedulers } from '@/db/schema';
 import { generateDailyQuizTool } from '@/mastra/tools';
+import { configure, schemaTask, wait } from "@trigger.dev/sdk/v3";
+import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+import { z } from "zod";
 
 // Initialize Trigger.dev client
 configure({
