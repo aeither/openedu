@@ -118,7 +118,7 @@ Share this message to help your friends learn more effectively!`;
         // Add a row with the quiz button and delete button side by side
         keyboard
           .url(`Quiz ${index + 1} (${quiz.questionCount} Q)`, quiz.url)
-          .text(`🗑️`, `delete_quiz:${quiz.id}`);
+          .text('🗑️', `delete_quiz:${quiz.id}`);
         
         // Add a new row for the next quiz
         if (index < userQuizzes.length - 1) {
@@ -158,11 +158,12 @@ Share this message to help your friends learn more effectively!`;
       const progressPercent = schedule.progress.percentComplete;
       const formattedDate = new Date(schedule.startedAt).toLocaleDateString();
       
-      const message = `📚 Quiz Schedule Info 📚\n\n` +
-        `Topic: ${schedule.content}\n` +
-        `Progress: Day ${schedule.progress.currentDay} of ${schedule.progress.totalDays} (${progressPercent}%)\n` +
-        `Started: ${formattedDate}\n` +
-        `Status: ${schedule.status || 'Active'}\n`;
+      const message = `📚 Quiz Schedule Info 📚
+
+Topic: ${schedule.content}
+Progress: Day ${schedule.progress.currentDay} of ${schedule.progress.totalDays} (${progressPercent}%)
+Started: ${formattedDate}
+Status: ${schedule.status || 'Active'}`;
       
       // Provide a button to allow stopping the current quiz series
       const keyboard = new InlineKeyboard()
@@ -186,8 +187,14 @@ Share this message to help your friends learn more effectively!`;
       const quizId = callbackData.split(":")[1];
       
       try {
-        // Delete the quiz
-        await deleteQuiz(ctx.chat!.id, quizId);
+        // Add a check for ctx.chat
+        if (!ctx.chat) {
+          console.error("Chat context missing in delete_quiz callback");
+          await ctx.answerCallbackQuery({ text: "Error: Cannot identify chat." });
+          return;
+        }
+        // Delete the quiz (no ! needed now)
+        await deleteQuiz(ctx.chat.id, quizId);
         
         // Acknowledge the callback query
         await ctx.answerCallbackQuery({
@@ -207,7 +214,14 @@ Share this message to help your friends learn more effectively!`;
       }
     } else if (callbackData === "complete_quiz_series") {
       try {
-        await trpc.triggerDev.completeScheduledQuiz.mutate({ chatId: ctx.chat!.id.toString() });
+        // Add a check for ctx.chat
+        if (!ctx.chat) {
+          console.error("Chat context missing in complete_quiz_series callback");
+          await ctx.answerCallbackQuery({ text: "Error: Cannot identify chat." });
+          return;
+        }
+        // No ! needed now
+        await trpc.triggerDev.completeScheduledQuiz.mutate({ chatId: ctx.chat.id.toString() });
         await ctx.answerCallbackQuery({ text: "Quiz series marked completed!" });
         await ctx.reply("Your quiz series is now completed. You can start a new one.");
       } catch (error) {
@@ -245,28 +259,27 @@ Share this message to help your friends learn more effectively!`;
         
         // Trigger the scheduled quiz task
         try {
-          await trpc.triggerDev.triggerScheduledQuiz.mutate({
+          // Call the mutation
+          const result = await trpc.triggerDev.triggerScheduledQuiz.mutate({
             chatId: ctx.chat.id.toString(),
             content: evaluation.content,
             days
           });
-          
-          await ctx.reply(`Your quiz series has been scheduled! You'll receive your first quiz soon, followed by one quiz per day for ${days} days.`);
-        } catch (error: unknown) {
-          // Check if this is the existing quiz series error
-          const errorMessage = error instanceof Error ? error.message : 
-                              typeof error === 'object' && error !== null && 'message' in error 
-                              ? String(error.message) : 'Unknown error';
-                              
-          if (errorMessage.includes("You already have an active quiz series")) {
-            // Offer a button to complete the current quiz series
-            const keyboard = new InlineKeyboard()
-              .text("Mark series completed", "complete_quiz_series");
-            await ctx.reply(errorMessage, { reply_markup: keyboard });
-          } else {
-            console.error("Error scheduling quiz series:", error);
-            await ctx.reply("Sorry, I couldn't schedule your quiz series. Please try again later.");
+
+          // Check the result status
+          if (result.status === 'created') {
+            await ctx.reply(`Your quiz series has been scheduled! You'll receive your first quiz soon, followed by one quiz per day for ${days} days.`);
+          } else if (result.status === 'already_running') {
+             // Offer a button to complete the current quiz series
+             const keyboard = new InlineKeyboard()
+               .text("Mark series completed", "complete_quiz_series");
+             await ctx.reply(result.message ?? 'An active quiz series is already running.', { reply_markup: keyboard });
           }
+          
+        } catch (error: unknown) {
+          // Generic error handling for other failures (e.g., network, internal server)
+          console.error("Error scheduling quiz series:", error);
+          await ctx.reply("Sorry, I couldn't schedule your quiz series. Please try again later.");
         }
       } 
       else if (evaluation.intent === "quiz_now") {

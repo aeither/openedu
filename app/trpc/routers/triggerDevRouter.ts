@@ -1,13 +1,13 @@
-import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../init";
-import { scheduledQuizTask } from '../../../src/trigger/quizScheduler';
-import { generateBreakdownTool } from '@/mastra/tools';
-import { TRPCError } from '@trpc/server';
 import { db } from '@/db/drizzle';
-import { users, schedulers } from '@/db/schema';
+import { schedulers } from '@/db/schema';
+import { generateBreakdownTool } from '@/mastra/tools';
 import { runs } from '@trigger.dev/sdk/v3';
-import { eq, and } from 'drizzle-orm';
+import { TRPCError } from '@trpc/server';
+import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+import { z } from "zod";
+import { scheduledQuizTask } from '../../../src/trigger/quizScheduler';
+import { createTRPCRouter, publicProcedure } from "../init";
 
 export const triggerDevRouter = createTRPCRouter({
   triggerScheduledQuiz: publicProcedure
@@ -19,19 +19,25 @@ export const triggerDevRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       try {
         // Check if the user already has an active scheduler
+        const userAddress = `telegram:${input.chatId}`;
         const existingScheduler = await db.query.schedulers.findFirst({
           where: (s, { eq, and }) => and(
-            eq(s.userAddress, input.chatId),
+            eq(s.userAddress, userAddress),
             eq(s.status, "running")
           ),
         });
         
         if (existingScheduler) {
-          // User already has an active scheduler
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
+          // Return status indicating already running
+          return {
+            status: 'already_running',
             message: `You already have an active quiz series about "${existingScheduler.content}" (Day ${existingScheduler.currentDay}/${existingScheduler.totalDays}). Please complete it before starting a new one.`,
-          });
+            details: {
+              content: existingScheduler.content,
+              currentDay: existingScheduler.currentDay,
+              totalDays: existingScheduler.totalDays
+            } 
+          };
         }
         
         // Start the scheduled quiz series with day 1
@@ -42,13 +48,12 @@ export const triggerDevRouter = createTRPCRouter({
           currentDay: 1, // Start with day 1
         });
         
-        console.log("input", input);
         // Create a scheduler record
         const breakdownRes = await generateBreakdownTool.execute?.({ context: { content: input.content, totalDays: input.days } }) || { breakdown: [] };
         await db.insert(schedulers)
           .values({
             id: uuidv4(),
-            userAddress: `telegram:${input.chatId}`,
+            userAddress: userAddress,
             triggerRunningId: handle.id,
             currentDay: 1,
             totalDays: input.days,
@@ -57,7 +62,11 @@ export const triggerDevRouter = createTRPCRouter({
             createdAt: new Date()
           });
           
-        return handle;
+        // Return status indicating creation and the handle
+        return { 
+          status: 'created', 
+          handle: handle 
+        };
       } catch (error) {
         console.error('Error triggering scheduledQuizTask:', error);
         throw new TRPCError({
@@ -71,8 +80,9 @@ export const triggerDevRouter = createTRPCRouter({
     .query(async ({ input }) => {
       try {
         // Find scheduler for this user
+        const userAddress = `telegram:${input.chatId}`;
         const schedulerEntry = await db.query.schedulers.findFirst({
-          where: (s, { eq }) => eq(s.userAddress, input.chatId),
+          where: (s, { eq }) => eq(s.userAddress, userAddress),
           orderBy: (s, { desc }) => [desc(s.createdAt)]
         });
         
@@ -143,10 +153,11 @@ export const triggerDevRouter = createTRPCRouter({
     .input(z.object({ chatId: z.string() }))
     .mutation(async ({ input }) => {
       try {
+        const userAddress = `telegram:${input.chatId}`;
         // Find the active running scheduler
         const existing = await db.query.schedulers.findFirst({
           where: (s, { eq, and }) => and(
-            eq(s.userAddress, input.chatId),
+            eq(s.userAddress, userAddress),
             eq(s.status, 'running')
           )
         });
