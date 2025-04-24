@@ -1,14 +1,20 @@
 import { db } from '@/db/drizzle';
 import { notes, quizzes, schedulers } from '@/db/schema';
-import { generateDailyQuizTool } from '@/mastra/tools';
+import { generateBreakdownTool, generateDailyQuizTool } from '@/mastra/tools';
 import { configure, schemaTask, wait } from "@trigger.dev/sdk/v3";
 import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from "zod";
 
+// Check for secret key during initialization
+const triggerSecretKey = process.env.TRIGGER_SECRET_KEY;
+if (!triggerSecretKey) {
+  throw new Error("Missing environment variable: TRIGGER_SECRET_KEY");
+}
+
 // Initialize Trigger.dev client
 configure({
-  secretKey: process.env.TRIGGER_SECRET_KEY!,
+  secretKey: triggerSecretKey,
 });
 
 // Helper function to get base URL based on environment (copied from webhook)
@@ -17,9 +23,16 @@ const getBaseUrl = () =>
     ? 'https://basically-enough-clam.ngrok-free.app' // Ensure this is your correct ngrok URL or dev URL
     : 'https://openedu.dailywiser.xyz'; // Ensure this is your correct production URL
 
+// Define a type for Telegram message data
+interface TelegramMessageData {
+  chat_id: string;
+  text: string;
+  reply_markup?: { inline_keyboard: { text: string; url: string }[][] };
+}
+
 // Helper function to send Telegram message (copied from webhook)
 async function sendTelegramMessage(chatId: string, text: string, quizUrl?: string) {
-  const messageData: any = {
+  const messageData: TelegramMessageData = {
     chat_id: chatId, // Use original chatId for Telegram API
     text
   };
@@ -79,7 +92,7 @@ export const scheduledQuizTask = schemaTask({
       }
 
       // 2. Find the relevant scheduler entry & update its current day/status
-      const scheduler = await db.query.schedulers.findFirst({
+      let scheduler = await db.query.schedulers.findFirst({
           // Query by userAddress and the *original* content of the series
           where: (s, { eq, and }) => and(
               eq(s.userAddress, userAddress),
@@ -89,12 +102,44 @@ export const scheduledQuizTask = schemaTask({
       });
 
       if (!scheduler) {
-          console.error(`Scheduler not found for user ${userAddress} and content "${payload.content}". Skipping quiz generation.`);
-          // Decide how to handle this - maybe the scheduler was manually deleted?
-          return { success: false, message: "Scheduler not found." };
+          console.warn(`Scheduler not found for user ${userAddress} and content "${payload.content}". Attempting to recreate...`);
+          try {
+            // Re-generate breakdown if needed
+            const breakdownRes = await generateBreakdownTool.execute?.({ context: { content: payload.content, totalDays: payload.days } }) || { breakdown: [] };
+            const newSchedulerId = uuidv4();
+            
+            // Attempt to insert the missing scheduler record
+            await db.insert(schedulers).values({
+              id: newSchedulerId,
+              userAddress: userAddress,
+              // triggerRunningId: null, // Cannot retrieve original handle ID during re-run
+              currentDay: payload.currentDay, // Start from the current day of the payload
+              totalDays: payload.days,
+              content: payload.content,
+              breakdown: breakdownRes.breakdown,
+              status: 'running', // Assume it should be running
+              createdAt: new Date() // Set creation date to now
+            });
+
+            console.log(`Recreated scheduler ${newSchedulerId} for user ${userAddress}`);
+
+            // Re-query to get the newly created scheduler
+            scheduler = await db.query.schedulers.findFirst({ where: eq(schedulers.id, newSchedulerId) });
+
+            if (!scheduler) {
+              // If still not found after creation attempt, something went wrong
+              throw new Error("Failed to retrieve scheduler immediately after recreation.");
+            }
+
+          } catch (recreationError: unknown) { // Type the caught error as unknown
+            // Check if it's an Error instance before accessing message
+            const errorMessage = recreationError instanceof Error ? recreationError.message : "Unknown error during recreation";
+            console.error(`Failed to recreate scheduler for user ${userAddress}:`, errorMessage, recreationError);
+            return { success: false, message: `Scheduler not found and failed to recreate: ${errorMessage}` };
+          }
       }
 
-      // Update scheduler's current day and status
+      // Update scheduler's current day and status (using the found or recreated scheduler)
       const isCompleted = payload.currentDay >= payload.days;
       await db.update(schedulers)
           .set({
@@ -175,11 +220,18 @@ export const scheduledQuizTask = schemaTask({
 
       return { success: true, quizId: isCompleted ? undefined : 'scheduled_next' }; // Indicate success or next scheduling
 
-    } catch (error) {
-      console.error(`Error in scheduledQuizTask for user ${userAddress}, day ${payload.currentDay}:`, error);
+    } catch (error: unknown) { // Explicitly type error as unknown
+      console.error(
+        `Error in scheduledQuizTask for user ${userAddress}, day ${payload.currentDay}:`,
+        error instanceof Error ? error.message : "Unknown error in task run", 
+        error // Log the original error object too
+      );
       // Consider retries or specific error handling based on error type
       // Returning failure might trigger Trigger.dev's retry policy if configured
-      return { success: false, message: error instanceof Error ? error.message : "Unknown error" };
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : "Unknown error in task run" 
+      };
     }
   },
 });

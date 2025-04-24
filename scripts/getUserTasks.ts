@@ -1,5 +1,4 @@
 import { db } from "@/db/drizzle";
-import { runs } from "@trigger.dev/sdk/v3";
 import * as dotenv from "dotenv";
 dotenv.config();
 

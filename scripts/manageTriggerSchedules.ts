@@ -1,4 +1,6 @@
 import { schedules } from "@trigger.dev/sdk/v3";
+import dotenv from "dotenv";
+dotenv.config();
 
 // List all schedules
 async function listSchedules() {
