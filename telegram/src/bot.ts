@@ -322,7 +322,7 @@ Status: ${schedule.status || 'Active'}`;
       // Get file info from Telegram
       const file = await ctx.api.getFile(photo.file_id);
       
-      // Build the download URL
+      // Build the URL
       const fileUrl = `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${file.file_path}`;
       
       // Let the user know we are processing
