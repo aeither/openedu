@@ -332,7 +332,7 @@ Status: ${schedule.status || 'Active'}`;
       const result = await trpc.image.describeImage.mutate({ imageUrl: fileUrl });
       
       // Send result back to user
-      await ctx.reply(`Description: ${result.description}`);
+      await ctx.reply(`⭐️ ${result.content}`);
     } catch (error) {
       console.error("Error handling photo message:", error);
       await ctx.reply("Sorry, I couldn't analyze the image. Please try again later.");

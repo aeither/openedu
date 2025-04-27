@@ -1,10 +1,10 @@
-import { createTool } from '@mastra/core/tools';
-import { z } from 'zod';
-import { getPublicClient } from "@/lib/publicClient";
-import { formatEther } from "viem";
 import { getTokenPrice } from "@/lib/coingecko";
+import { getPublicClient } from "@/lib/publicClient";
 import { groq } from '@ai-sdk/groq';
+import { createTool } from '@mastra/core/tools';
 import { generateObject } from 'ai';
+import { formatEther } from "viem";
+import { z } from 'zod';
 
 // Tool for minting an NFT with custom metadata
 export const mintNftTool = createTool({
@@ -352,37 +352,47 @@ export const generateFlashcardTool = createTool({
   }
 });
 
-// Tool to describe an image
+// Tool to describe an image or answer questions within it
 export const describeImageTool = createTool({
   id: 'describeImageTool',
-  description: 'Analyzes an image from a URL and provides a concise description',
+  description: 'Analyzes an image from a URL. If it contains a question (math, quiz, etc.), answers it. Otherwise, provides a concise description.',
   inputSchema: z.object({
-    imageUrl: z.string().url().describe('The URL of the image to describe')
+    imageUrl: z.string().url().describe('The URL of the image to analyze')
   }),
+  // Updated output schema
   outputSchema: z.object({
-    description: z.string().describe('A concise description of the image content')
+    type: z.enum(['answer', 'description']).describe('Whether the response is an answer to a question or a description'),
+    content: z.string().describe('The answer to the question or the description of the image')
   }),
   execute: async ({ context }) => {
     const { imageUrl } = context;
 
     const result = await generateObject({
-      model: groq("meta-llama/llama-4-scout-17b-16e-instruct"), // Or another vision-capable model if available
+      model: groq("meta-llama/llama-4-scout-17b-16e-instruct"), // Or another vision-capable model
       messages: [
         {
           role: "user",
           content: [
-            { type: "text", text: "Describe this image concisely." },
+            {
+              type: "text",
+              // Updated prompt instruction
+              text: "Analyze the image carefully. First, determine if it primarily contains a question that needs an answer (e.g., a math problem, a quiz question, a request for help or information presented visually). If it IS a question, provide a helpful answer or solution and set type to 'answer'. If it is NOT primarily a question, provide a concise description of the image content and set type to 'description'."
+            },
             { type: "image", image: new URL(imageUrl) },
           ],
         },
       ],
+      // Use the updated schema for the output
       schema: z.object({
-        description: z.string().describe('A concise description of the image content')
+        type: z.enum(['answer', 'description']).describe('Whether the response is an answer or a description'),
+        content: z.string().describe('The answer or the description')
       })
     });
 
+    // Return the structured object
     return {
-      description: result.object.description
+      type: result.object.type,
+      content: result.object.content
     };
   }
 });
