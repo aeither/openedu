@@ -64,9 +64,13 @@ export function createBot(token: string) {
       await ctx.reply("Your quiz is ready! Click the button below to start:", {
         reply_markup: keyboard
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Quiz generation error:", error);
-      await ctx.reply("Sorry, I couldn't generate a quiz. Please try again later.");
+      let errorMessage = "An unknown error occurred.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      await ctx.reply(`Sorry, I couldn't generate a quiz. Reason: ${errorMessage}`);
     }
   });
 
