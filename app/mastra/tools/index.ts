@@ -368,7 +368,7 @@ export const describeImageTool = createTool({
     const { imageUrl } = context;
 
     const result = await generateObject({
-      model: groq("meta-llama/llama-4-scout-17b-16e-instruct"), // Or another vision-capable model
+      model: groq("meta-llama/llama-4-maverick-17b-128e-instruct"), // Or another vision-capable model
       messages: [
         {
           role: "user",
