@@ -3,14 +3,6 @@ import { Bot, InlineKeyboard } from "grammy";
 import superjson from 'superjson';
 import type { TRPCRouter } from '../../app/trpc/router';
 
-// API URL for the backend service - can be used across multiple functions
-const API_BASE_URL = process.env.NODE_ENV === "development"
-  ? "https://basically-enough-clam.ngrok-free.app"
-  : "https://openedu.dailywiser.xyz";
-const trpc = createTRPCClient<TRPCRouter>({
-  links: [httpBatchLink({ url: `${API_BASE_URL}/api/trpc`, transformer: superjson })],
-});
-
 // Define interface for quiz objects returned from API
 interface UserQuiz {
   id: string;
@@ -20,9 +12,16 @@ interface UserQuiz {
   url: string;
 }
 
-export function createBot(token: string) {
+export function createBot(botToken: string, apiBaseUrl: string) {
   // Create bot instance
-  const bot = new Bot(token);
+  const bot = new Bot(botToken);
+
+  // Initialize tRPC client inside the function using the passed URL
+  const trpc = createTRPCClient<TRPCRouter>({
+    links: [httpBatchLink({ url: `${apiBaseUrl}/api/trpc`, transformer: superjson })],
+  });
+
+  // Move here
 
   // Handle start command - create user if not exists
   bot.command("start", async (ctx) => {
@@ -326,13 +325,13 @@ Status: ${schedule.status || 'Active'}`;
       // Get file info from Telegram
       const file = await ctx.api.getFile(photo.file_id);
       
-      // Build the URL
-      const fileUrl = `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${file.file_path}`;
+      // Build the URL using botToken
+      const fileUrl = `https://api.telegram.org/file/bot${botToken}/${file.file_path}`;
       
       // Let the user know we are processing
       await ctx.reply("Analyzing the image...");
 
-      // Call the tRPC endpoint to describe the image
+      // Call the tRPC endpoint (uses the trpc instance defined within createBot)
       const result = await trpc.image.describeImage.mutate({ imageUrl: fileUrl });
       
       // Send result back to user
@@ -350,87 +349,61 @@ Status: ${schedule.status || 'Active'}`;
     }
   });
 
-  return bot;
-}
+  // --- Helper Functions Defined INSIDE createBot ---
 
-// Function to fetch user quizzes from the backend
-async function fetchUserQuizzes(chatId: number): Promise<UserQuiz[]> {
-  try {
-    const quizzesUrl = `${API_BASE_URL}/api/tg/quiz?chat_id=${chatId}`;
-    
-    const response = await fetch(quizzesUrl);
-    
-    if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`);
+  async function fetchUserQuizzes(chatId: number): Promise<UserQuiz[]> {
+    try {
+      // Now has access to apiBaseUrl
+      const quizzesUrl = `${apiBaseUrl}/api/tg/quiz?chat_id=${chatId}`; 
+      const response = await fetch(quizzesUrl);
+      if (!response.ok) throw new Error(`API responded with status: ${response.status}`);
+      const data = await response.json();
+      return data.quizzes;
+    } catch (error) {
+      console.error("API call to fetch quizzes failed:", error);
+      throw error;
     }
-    
-    const data = await response.json();
-    return data.quizzes;
-  } catch (error) {
-    console.error("API call to fetch quizzes failed:", error);
-    throw error;
   }
-}
 
-// Function to delete a quiz
-async function deleteQuiz(chatId: number, quizId: string): Promise<void> {
-  try {
-    const deleteUrl = `${API_BASE_URL}/api/tg/quiz?chat_id=${chatId}&quiz_id=${quizId}`;
-    
-    const response = await fetch(deleteUrl, {
-      method: "DELETE",
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `API responded with status: ${response.status}`);
-    }
-    
-    // Return successfully if no errors
-    return;
-  } catch (error) {
-    console.error("API call to delete quiz failed:", error);
-    throw error;
-  }
-}
-
-// Function to call the API to generate a quiz
-async function generateQuiz(chatId: number, content: string) {
-  try {
-    // Use the API_BASE_URL from the top of the file
-    const apiUrl = `${API_BASE_URL}/api/tg/quiz`;
-    
-    // Format the request to match what the API expects
-    const requestBody = {
-      message: {
-        chat: {
-          id: chatId
-        },
-        text: content
+  async function deleteQuiz(chatId: number, quizId: string): Promise<void> {
+    try {
+      // Now has access to apiBaseUrl
+      const deleteUrl = `${apiBaseUrl}/api/tg/quiz?chat_id=${chatId}&quiz_id=${quizId}`;
+      const response = await fetch(deleteUrl, { method: "DELETE" });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `API responded with status: ${response.status}`);
       }
-    };
-    
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestBody)
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`);
+      return;
+    } catch (error) {
+      console.error("API call to delete quiz failed:", error);
+      throw error;
     }
-    
-    const data = await response.json();
-    
-    if (!data.quiz_url) {
-      throw new Error("No quiz URL in response");
-    }
-    
-    return data;
-  } catch (error) {
-    console.error("API call failed:", error);
-    throw error;
   }
+
+  async function generateQuiz(chatId: number, content: string) {
+    try {
+      // Now has access to apiBaseUrl
+      const apiUrl = `${apiBaseUrl}/api/tg/quiz`;
+      const requestBody = {
+        message: { chat: { id: chatId }, text: content }
+      };
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody)
+      });
+      if (!response.ok) throw new Error(`API responded with status: ${response.status}`);
+      const data = await response.json();
+      if (!data.quiz_url) throw new Error("No quiz URL in response");
+      return data;
+    } catch (error) {
+      console.error("API call failed:", error);
+      throw error;
+    }
+  }
+
+  // --- End Helper Functions ---
+
+  return bot;
 }

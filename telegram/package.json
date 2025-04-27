@@ -7,6 +7,7 @@
     "dev": "NODE_ENV=development bun run --watch dev.ts",
     "dev:webhook": "bunx wrangler dev src/worker.ts",
     "dev:ngrok": "ngrok http --domain=basically-enough-clam.ngrok-free.app 3000",
+    "dev:all": "concurrently \"npm run dev:webhook\" \"npm run dev:ngrok\"",
     "deploy": "bunx wrangler deploy",
     "secret": "wrangler secret put BOT_TOKEN"
   },
@@ -21,12 +22,13 @@
   },
   "dependencies": {
     "@grammyjs/types": "^3.19.0",
+    "@trpc/client": "^11.1.0",
     "@types/json2csv": "^5.0.7",
+    "concurrently": "^7.5.0",
     "csv-parse": "^5.6.0",
     "csv-stringify": "^6.5.2",
     "grammy": "^1.35.1",
-    "@trpc/client": "^11.1.0",
-    "superjson": "^1.12.4",
-    "json2csv": "^6.0.0-alpha.2"
+    "json2csv": "^6.0.0-alpha.2",
+    "superjson": "^1.12.4"
   }
 }
