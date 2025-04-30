@@ -352,46 +352,45 @@ export const generateFlashcardTool = createTool({
   }
 });
 
-// Tool to describe an image or answer questions within it
+// Tool to analyze image content, answer questions, or describe
 export const describeImageTool = createTool({
   id: 'describeImageTool',
-  description: 'Analyzes an image from a URL. If it contains a question (math, quiz, etc.), answers it. Otherwise, provides a concise description.',
+  description: 'Analyzes an image from a URL. If it contains a question (math problem, quiz, homework, etc.), provides an accurate answer or solution. Otherwise, describes the image.',
   inputSchema: z.object({
     imageUrl: z.string().url().describe('The URL of the image to analyze')
   }),
-  // Updated output schema
+  // Simplified output schema - only content
   outputSchema: z.object({
-    type: z.enum(['answer', 'description']).describe('Whether the response is an answer to a question or a description'),
     content: z.string().describe('The answer to the question or the description of the image')
   }),
   execute: async ({ context }) => {
     const { imageUrl } = context;
 
     const result = await generateObject({
-      model: groq("meta-llama/llama-4-maverick-17b-128e-instruct"), // Or another vision-capable model
+      model: groq("meta-llama/llama-4-maverick-17b-128e-instruct"), // Use a strong vision/reasoning model
+      // Enhanced system prompt for accuracy and task prioritization
+      system: "You are an expert academic assistant specializing in accurately solving problems presented visually. Prioritize identifying and answering any questions (math, science, quizzes, homework, diagrams, text-based questions) found in the image. Provide step-by-step solutions for math problems where applicable. If no question is clearly present, provide a concise description of the image.",
       messages: [
         {
           role: "user",
           content: [
             {
               type: "text",
-              // Updated prompt instruction
-              text: "Analyze the image carefully. First, determine if it primarily contains a question that needs an answer (e.g., a math problem, a quiz question, a request for help or information presented visually). If it IS a question, provide a helpful answer or solution and set type to 'answer'. If it is NOT primarily a question, provide a concise description of the image content and set type to 'description'."
+              // Refined user prompt instruction
+              text: "Carefully analyze the image. If you identify a question (e.g., math problem, quiz, homework task), provide the most accurate answer or solution possible. If there is no question, describe the image content concisely."
             },
             { type: "image", image: new URL(imageUrl) },
           ],
         },
       ],
-      // Use the updated schema for the output
+      // Use the simplified schema for the output
       schema: z.object({
-        type: z.enum(['answer', 'description']).describe('Whether the response is an answer or a description'),
-        content: z.string().describe('The answer or the description')
+        content: z.string().describe('The accurate answer to the question, or a concise description if no question is found.')
       })
     });
 
-    // Return the structured object
+    // Return only the content
     return {
-      type: result.object.type,
       content: result.object.content
     };
   }
