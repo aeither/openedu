@@ -14,7 +14,6 @@ const commands: BotCommand[] = [
   { command: 'status', description: 'Check your scheduled quiz status' },
   { command: 'video_quiz', description: 'Create a quiz video from text' },
   { command: 'video_status', description: 'Check quiz video rendering progress' },
-  { command: 'refer', description: 'Share the bot with friends' },
   // Add other user-facing commands here
 ];
 
