@@ -186,29 +186,34 @@ Status: ${schedule.status || 'Active'}`;
     const content = messageText.replace(/^\/video_quiz($|\\s+)/i, "").trim();
 
     if (!content) {
-      await ctx.reply("Please provide the content for the video quiz after the command. Example:\n/video_quiz Photosynthesis is the process plants use to convert light energy into chemical energy.");
+      await ctx.reply("Please provide the content for the video quiz... Example: /video_quiz Photosynthesis...");
       return;
     }
 
-    await ctx.reply("⏳ Generating quiz data and starting video render...");
+    // Send initial acknowledgement immediately
+    await ctx.reply("⏳ Request received! Submitting video render job...");
 
     try {
-      const result = await trpc.videoQuiz.generateAndStartRender.mutate({
+      // Call the TRPC mutation to trigger the background task
+      const result = await trpc.videoQuiz.triggerRender.mutate({
         chatId: ctx.chat.id.toString(),
         content: content,
+        // questionCount: 3 // Or extract if needed
       });
-
-      await ctx.reply(`✅ Video rendering started!\nJob ID: \`${result.jobId}\`\n\nUse \`/video_status ${result.jobId}\` to check progress.`);
+      
+      // Inform user the job was submitted (the background task sends the actual jobId later)
+      await ctx.reply(`✅ Render job submitted successfully! (Trigger ID: ${result.triggerHandleId}). You will receive another message when processing begins.`);
 
     } catch (error: unknown) {
-      console.error("Error starting video quiz render:", error);
-      let errorMessage = "An unknown error occurred.";
+      // Handle errors from the tRPC call (e.g., failed to trigger)
+      console.error("Error calling triggerRender mutation:", error);
+      let errorMessage = "Could not submit the video render job.";
       if (error instanceof Error) {
         errorMessage = error.message;
       } else if (error && typeof error === 'object' && 'message' in error) {
-        errorMessage = String(error.message);
+          errorMessage = String(error.message);
       }
-      await ctx.reply(`❌ Failed to start video quiz render. Reason: ${errorMessage}`);
+      await ctx.reply(`❌ Failed to submit video generation job. Reason: ${errorMessage}`);
     }
   });
 
