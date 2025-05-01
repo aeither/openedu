@@ -219,7 +219,19 @@ Status: ${schedule.status || 'Active'}`;
 
   bot.command("video_status", async (ctx) => {
     const messageText = ctx.message?.text || "";
-    const jobId = messageText.replace(/^\/video_status($|\\s+)/i, "").trim();
+    
+    // Refactored argument extraction
+    const parts = messageText.split(/\s+/); // Split by one or more spaces
+    let jobId = "";
+    if (parts.length >= 2) {
+        jobId = parts[1]; // The second part should be the Job ID
+    } else {
+        // Handle cases like just "/video_status" or extra spaces after command
+        const potentialId = messageText.replace(/^\/video_status($|\\s+)/i, "").trim();
+        if (potentialId) {
+            jobId = potentialId;
+        }
+    }
 
     if (!jobId) {
       await ctx.reply("Please provide the Job ID after the command. Example:\n/video_status your-job-id-here");
@@ -252,7 +264,6 @@ Status: ${schedule.status || 'Active'}`;
       console.error(`Error fetching status for job ${jobId}:`, error);
       let errorMessage = "An unknown error occurred.";
       if (error instanceof Error) {
-        // Handle specific TRPC errors like NOT_FOUND
         if (error.message.includes('not found')) {
           errorMessage = `Job ID \`${jobId}\` not found.`;
         } else {
