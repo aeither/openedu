@@ -352,6 +352,53 @@ export const generateFlashcardTool = createTool({
   }
 });
 
+// Schema for a single video quiz question
+const videoQuestionSchema = z.object({
+  question: z.string().describe('The question text'),
+  options: z.array(z.string()).length(4).describe('Four possible answer options'),
+  correctAnswerIndex: z.number().min(0).max(3).describe('The 0-based index of the correct answer in the options array'),
+  // Optional: Add explanation if the video rendering supports it
+  // explanation: z.string().optional().describe('Brief explanation for the correct answer')
+});
+
+// Tool to generate quiz data suitable for video rendering
+export const generateVideoQuizDataTool = createTool({
+  id: 'generateVideoQuizDataTool',
+  description: 'Generates quiz questions from content, formatted for video creation (uses correctAnswerIndex).',
+  inputSchema: z.object({
+    content: z.string().describe('The educational content to generate quiz questions from'),
+    count: z.number().optional().default(3).describe('Number of questions (default: 3, fewer for video is often better)')
+  }),
+  outputSchema: z.object({
+    // Match the structure needed for the Remotion backend's quizData
+    questions: z.array(videoQuestionSchema).describe('Array of generated video quiz questions')
+  }),
+  execute: async ({ context }) => {
+    const { content, count = 3 } = context;
+
+    const result = await generateObject({
+      model: groq("llama-3.3-70b-versatile"), // Or your preferred model
+       system: "You are an assistant that creates engaging multiple-choice quiz questions suitable for a short video format. Generate exactly 4 options for each question. Ensure the `correctAnswerIndex` accurately points to the correct option (0 for the first, 1 for the second, etc.). Keep questions and options concise.",
+      messages: [
+        {
+          role: "user",
+          content: `Create ${count} multiple choice quiz questions based on the following content. Output using the provided schema with 'question', 'options', and 'correctAnswerIndex'.\n\nContent:\n${content}`
+        }
+      ],
+      // Use 'object' mode when the top-level output is an object containing an array
+      output: 'object',
+      schema: z.object({
+         questions: z.array(videoQuestionSchema)
+      }),
+    });
+
+    // Ensure we don't exceed the requested count, though generateObject with object mode should respect it
+    return {
+      questions: result.object.questions.slice(0, count)
+    };
+  }
+});
+
 // Tool to analyze image content, answer questions, or describe
 export const describeImageTool = createTool({
   id: 'describeImageTool',

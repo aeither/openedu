@@ -180,6 +180,86 @@ Status: ${schedule.status || 'Active'}`;
     }
   });
 
+
+  bot.command("video_quiz", async (ctx) => {
+    const messageText = ctx.message?.text || "";
+    const content = messageText.replace(/^\/video_quiz($|\\s+)/i, "").trim();
+
+    if (!content) {
+      await ctx.reply("Please provide the content for the video quiz after the command. Example:\n/video_quiz Photosynthesis is the process plants use to convert light energy into chemical energy.");
+      return;
+    }
+
+    await ctx.reply("⏳ Generating quiz data and starting video render...");
+
+    try {
+      const result = await trpc.videoQuiz.generateAndStartRender.mutate({
+        chatId: ctx.chat.id.toString(),
+        content: content,
+      });
+
+      await ctx.reply(`✅ Video rendering started!\nJob ID: \`${result.jobId}\`\n\nUse \`/video_status ${result.jobId}\` to check progress.`);
+
+    } catch (error: unknown) {
+      console.error("Error starting video quiz render:", error);
+      let errorMessage = "An unknown error occurred.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = String(error.message);
+      }
+      await ctx.reply(`❌ Failed to start video quiz render. Reason: ${errorMessage}`);
+    }
+  });
+
+  bot.command("video_status", async (ctx) => {
+    const messageText = ctx.message?.text || "";
+    const jobId = messageText.replace(/^\/video_status($|\\s+)/i, "").trim();
+
+    if (!jobId) {
+      await ctx.reply("Please provide the Job ID after the command. Example:\n/video_status your-job-id-here");
+      return;
+    }
+
+    await ctx.reply(`🔍 Checking status for Job ID: \`${jobId}\`...`);
+
+    try {
+      const statusResult = await trpc.videoQuiz.getRenderStatus.query({ jobId });
+
+      // Check the structure of statusResult based on Remotion backend response
+      if (statusResult.status === 'done' && statusResult.url) {
+        await ctx.reply('🎉 Video Ready!');
+        await ctx.replyWithVideo(statusResult.url);
+      } else if (statusResult.status === 'in-progress' && statusResult.progress !== undefined) {
+        const progressPercent = Math.round(statusResult.progress * 100);
+        await ctx.reply(`⚙️ Video rendering is in progress (${progressPercent}%). Please check again later.`);
+      } else if (statusResult.status === 'error' && statusResult.message) {
+        await ctx.reply(`❌ Video rendering failed: ${statusResult.message}`);
+      } else if (statusResult.status === 'queued') { // Assuming a queued status exists
+        await ctx.reply('⏳ Video rendering is queued. Please check again later.');
+      } else {
+        // Handle other potential statuses or unexpected format
+        console.warn("Received unexpected video status:", statusResult);
+        await ctx.reply(`📊 Current Status: ${statusResult.status || 'Unknown'}`);
+      }
+
+    } catch (error: unknown) {
+      console.error(`Error fetching status for job ${jobId}:`, error);
+      let errorMessage = "An unknown error occurred.";
+      if (error instanceof Error) {
+        // Handle specific TRPC errors like NOT_FOUND
+        if (error.message.includes('not found')) {
+          errorMessage = `Job ID \`${jobId}\` not found.`;
+        } else {
+          errorMessage = error.message;
+        }
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = String(error.message);
+      }
+      await ctx.reply(`❌ Failed to get video status. Reason: ${errorMessage}`);
+    }
+  });
+
   // Handle callback queries for quiz deletion
   bot.on("callback_query:data", async (ctx) => {
     const callbackData = ctx.callbackQuery.data;
@@ -402,8 +482,5 @@ Status: ${schedule.status || 'Active'}`;
       throw error;
     }
   }
-
-  // --- End Helper Functions ---
-
   return bot;
 }

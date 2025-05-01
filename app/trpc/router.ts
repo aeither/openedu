@@ -1,13 +1,14 @@
 import { createTRPCRouter } from "./init";
+import { aiRouter } from "./routers/aiRouter";
+import { flashcardRouter } from "./routers/flashcardRouter";
+import { imageRouter } from "./routers/imageRouter";
+import { notesRouter } from "./routers/notesRouter";
 import { notificationRouter } from "./routers/notificationRouter";
 import { postRouter } from "./routers/postRouter";
-import { userRouter } from "./routers/userRouter";
 import { quizRouter } from "./routers/quizRouter";
-import { notesRouter } from "./routers/notesRouter";
-import { flashcardRouter } from "./routers/flashcardRouter";
 import { triggerDevRouter } from "./routers/triggerDevRouter";
-import { aiRouter } from "./routers/aiRouter";
-import { imageRouter } from "./routers/imageRouter";
+import { userRouter } from "./routers/userRouter";
+import { videoQuizRouter } from './routers/videoQuizRouter';
 
 export const trpcRouter = createTRPCRouter({
   post: postRouter,
@@ -19,6 +20,7 @@ export const trpcRouter = createTRPCRouter({
   triggerDev: triggerDevRouter,
   ai: aiRouter,
   image: imageRouter,
+  videoQuiz: videoQuizRouter,
 });
 
 export type TRPCRouter = typeof trpcRouter;
