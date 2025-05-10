@@ -9,7 +9,7 @@
     "dev:ngrok": "ngrok http --domain=basically-enough-clam.ngrok-free.app 3000",
     "dev:all": "concurrently \"npm run dev:webhook\" \"npm run dev:ngrok\"",
     "deploy": "bunx wrangler deploy",
-    "secret": "wrangler secret put BOT_TOKEN"
+    "secret": "wrangler secret put GROQ_API_KEY"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250410.0",
@@ -28,6 +28,7 @@
     "csv-parse": "^5.6.0",
     "csv-stringify": "^6.5.2",
     "grammy": "^1.35.1",
+    "groq-sdk": "^0.21.0",
     "json2csv": "^6.0.0-alpha.2",
     "superjson": "^1.12.4"
   }

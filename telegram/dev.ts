@@ -13,7 +13,7 @@ if (!botToken) {
 }
 
 // Create bot instance, passing token and API URL
-const bot = createBot(botToken, apiBaseUrl);
+const bot = createBot(botToken, apiBaseUrl, process.env as any);
 
 // Start polling in development
 if (process.env.NODE_ENV === "development") {

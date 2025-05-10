@@ -3,8 +3,9 @@ import { createBot } from "./bot";
 
 export interface Env {
   BOT_TOKEN: string;
-  // You might want to add API_URL as a secret too
-  // API_URL: string;
+  BOT_TOKEN_DEV?: string;
+  GROQ_API_KEY: string;
+  NODE_ENV: string;
 }
 
 // Define the production API URL
@@ -20,8 +21,8 @@ export default {
       // const apiBaseUrl = env.API_URL || PRODUCTION_API_URL; 
       const apiBaseUrl = PRODUCTION_API_URL; // Simpler: Assume production in worker
 
-      // Pass BOT_TOKEN and the determined apiBaseUrl
-      const bot = createBot(env.BOT_TOKEN, apiBaseUrl);
+      // Pass BOT_TOKEN, the determined apiBaseUrl, and the env object
+      const bot = createBot(env.BOT_TOKEN, apiBaseUrl, env);
 
       bot.catch((err) => {
         console.error('Error caught by bot.catch:', err);

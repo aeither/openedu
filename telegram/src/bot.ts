@@ -2,6 +2,8 @@ import { createTRPCClient, httpBatchLink } from '@trpc/client';
 import { Bot, InlineKeyboard } from "grammy";
 import superjson from 'superjson';
 import type { TRPCRouter } from '../../app/trpc/router';
+import { transcribeGroq } from "./audio/groq";
+import type { Env } from './worker';
 
 // Define interface for quiz objects returned from API
 interface UserQuiz {
@@ -12,7 +14,7 @@ interface UserQuiz {
   url: string;
 }
 
-export function createBot(botToken: string, apiBaseUrl: string) {
+export function createBot(botToken: string, apiBaseUrl: string, env: Env) {
   // Create bot instance
   const bot = new Bot(botToken);
 
@@ -438,10 +440,100 @@ Status: ${schedule.status || 'Active'}`;
     }
   });
 
-  // Handle non-text messages
-  bot.on("message", async (ctx) => {
-    if (!ctx.message.text) {
-      await ctx.reply("Welcome to DailyWiser! 🧠\n\nUse /quiz followed by your learning content to generate a quiz, or simply tell me what you'd like to learn about.");
+  // Handle voice messages
+  bot.on("message:voice", async (ctx) => {
+    try {
+      await ctx.reply("Processing your voice message...");
+
+      // Get the voice file
+      const fileId = ctx.message.voice.file_id;
+      const file = await bot.api.getFile(fileId);
+      const path = file.file_path;
+      
+      if (!path) {
+        await ctx.reply("Sorry, I couldn't process your voice message. Please try again.");
+        return;
+      }
+
+      // Transcribe the voice message
+      const transcribed = await transcribeGroq(env, {
+        path,
+        languageCode: null // Let Groq auto-detect the language
+      });
+
+      if (!transcribed || !transcribed.transcript) {
+        await ctx.reply("Sorry, I couldn't transcribe your voice message. Please try again.");
+        return;
+      }
+
+      // Show the transcription to the user
+      await ctx.reply(`Transcription: ${transcribed.transcript}`);
+
+      // Use AI to evaluate the message intent
+      const evaluation = await trpc.ai.evaluateMessage.mutate({
+        chatId: ctx.chat.id.toString(),
+        message: transcribed.transcript
+      });
+      
+      // Handle different intents based on AI evaluation
+      if (evaluation.intent === "quiz_scheduling") {
+        // User wants scheduled quizzes
+        const days = evaluation.days || 7; // Default to 7 days if not specified
+        
+        await ctx.reply(`Creating a ${days}-day quiz series about: ${evaluation.content}`);
+        
+        // Trigger the scheduled quiz task
+        try {
+          // Call the mutation
+          const result = await trpc.triggerDev.triggerScheduledQuiz.mutate({
+            chatId: ctx.chat.id.toString(),
+            content: evaluation.content,
+            days
+          });
+
+          // Check the result status
+          if (result.status === 'created') {
+            await ctx.reply(`Your quiz series has been scheduled! You'll receive your first quiz soon, followed by one quiz per day for ${days} days.`);
+          } else if (result.status === 'already_running') {
+             // Offer a button to complete the current quiz series
+             const keyboard = new InlineKeyboard()
+               .text("Mark series completed", "complete_quiz_series");
+             await ctx.reply(result.message ?? 'An active quiz series is already running.', { reply_markup: keyboard });
+          }
+          
+        } catch (error: unknown) {
+          console.error("Error scheduling quiz series:", error);
+          await ctx.reply("Sorry, I couldn't schedule your quiz series. Please try again later.");
+        }
+      } 
+      else if (evaluation.intent === "quiz_now") {
+        // User wants an immediate quiz
+        await ctx.reply(`Generating a quiz about: ${evaluation.content}`);
+        
+        // Generate and send an immediate quiz
+        try {
+          const response = await generateQuiz(ctx.chat.id, evaluation.content);
+          
+          // Create button with quiz URL
+          const keyboard = new InlineKeyboard()
+            .url("Take the Quiz", response.quiz_url);
+          
+          // Send response with button
+          await ctx.reply("Your quiz is ready! Click the button below to start:", {
+            reply_markup: keyboard
+          });
+        } catch (error) {
+          console.error("Quiz generation error:", error);
+          await ctx.reply("Sorry, I couldn't generate a quiz. Please try again later.");
+        }
+      } 
+      else {
+        // General conversation
+        await ctx.reply("I'm here to help with educational quizzes! You can:\n\n• Create an immediate quiz with /quiz [content]\n• Ask for a quiz series like 'create quizzes about space for the next 5 days'\n• View your quizzes with /quizzes");
+      }
+    } catch (error) {
+      console.error("Error handling voice message:", error);
+      await ctx.reply("Sorry, I encountered an error processing your voice message. Please try again later.");
     }
   });
 
